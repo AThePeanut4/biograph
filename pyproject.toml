@@ -6,7 +6,9 @@ authors = [
     {name = "Ethan Wolff", email = "thesisyphean256@gmail.com"},
     {name = "Luke Eberhard", email = "luke.eberhard@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "neo4j>=5.23.1",
+]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
