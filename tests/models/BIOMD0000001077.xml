@@ -1,0 +1,145 @@
+<Model>
+  <name>Adlung2021 - Cell-to-cell variability in JAK2/STAT5 pathway</name>
+  <description>&lt;notes xmlns="http://www.sbml.org/sbml/level2/version4">
+      &lt;body xmlns="http://www.w3.org/1999/xhtml">
+        &lt;p>A mathematical model for cell-to-cell variability in JAK2/STAT5 pathway components and cytoplasmic volumes defines survival threshold in erythroid progenitor cells&lt;/p>
+      &lt;/body>
+    &lt;/notes></description>
+  <format>
+    <name>SBML</name>
+    <version>L2V4</version>
+  </format>
+  <publication>
+    <type>PubMed ID</type>
+    <accession>34380040</accession>
+    <journal>Cell reports</journal>
+    <title>Cell-to-cell variability in JAK2/STAT5 pathway components and cytoplasmic volumes defines survival threshold in erythroid progenitor cells.</title>
+    <affiliation>Division Systems Biology of Signal Transduction, German Cancer Research Center (DKFZ), 69120 Heidelberg, Germany; Department of Medicine, University Medical Center Hamburg-Eppendorf, 20246 Hamburg, Germany; Hamburg Center for Translational Immunology (HCTI), University Medical Center Hamburg-Eppendorf, 20246 Hamburg, Germany.</affiliation>
+    <synopsis>Survival or apoptosis is a binary decision in individual cells. However, at the cell-population level, a graded increase in survival of colony-forming unit-erythroid (CFU-E) cells is observed upon stimulation with erythropoietin (Epo). To identify components of Janus kinase 2/signal transducer and activator of transcription 5 (JAK2/STAT5) signal transduction that contribute to the graded population response, we extended a cell-population-level model calibrated with experimental data to study the behavior in single cells. The single-cell model shows that the high cell-to-cell variability in nuclear phosphorylated STAT5 is caused by variability in the amount of Epo receptor (EpoR):JAK2 complexes and of SHP1, as well as the extent of nuclear import because of the large variance in the cytoplasmic volume of CFU-E cells. 24-118 pSTAT5 molecules in the nucleus for 120 min are sufficient to ensure cell survival. Thus, variability in membrane-associated processes is sufficient to convert a switch-like behavior at the single-cell level to a graded population-level response.</synopsis>
+    <year>2021</year>
+    <month>8</month>
+    <volume>36</volume>
+    <issue>6</issue>
+    <pages>109507</pages>
+    <link>http://identifiers.org/pubmed/34380040</link>
+    <authors>
+      <authors>
+        <name>Lorenz Adlung</name>
+        <orcid>0000-0002-0971-2309</orcid>
+      </authors>
+      <authors>
+        <name>Paul Stapor</name>
+        <institution>Helmholtz Zentrum München - German Research Center for Environmental Health, Institute of Computational Biology, 85764 Neuherberg, Germany; Technische Universität München, Center for Mathematics, Chair of Mathematical Modeling of Biological Systems, 85748 Garching, Germany.</institution>
+      </authors>
+      <authors>
+        <name>Christian Tönsing</name>
+        <institution>Institute of Physics and Freiburg Center for Data Analysis and Modelling (FDM), University of Freiburg, 79104 Freiburg, Germany; CIBSS-Centre for Integrative Biological Signalling Studies, University of Freiburg, 79104 Freiburg, Germany.</institution>
+        <orcid>0000-0003-2822-5191</orcid>
+      </authors>
+      <authors>
+        <name>Leonard Schmiester</name>
+        <institution>Helmholtz Zentrum München - German Research Center for Environmental Health, Institute of Computational Biology, 85764 Neuherberg, Germany; Technische Universität München, Center for Mathematics, Chair of Mathematical Modeling of Biological Systems, 85748 Garching, Germany.</institution>
+        <orcid>0000-0001-7946-3232</orcid>
+      </authors>
+      <authors>
+        <name>Luisa E Schwarzmüller</name>
+        <institution>Division Systems Biology of Signal Transduction, German Cancer Research Center (DKFZ), 69120 Heidelberg, Germany.</institution>
+      </authors>
+      <authors>
+        <name>Lena Postawa</name>
+        <institution>Division Systems Biology of Signal Transduction, German Cancer Research Center (DKFZ), 69120 Heidelberg, Germany.</institution>
+      </authors>
+      <authors>
+        <name>Dantong Wang</name>
+        <institution>Helmholtz Zentrum München - German Research Center for Environmental Health, Institute of Computational Biology, 85764 Neuherberg, Germany; Technische Universität München, Center for Mathematics, Chair of Mathematical Modeling of Biological Systems, 85748 Garching, Germany.</institution>
+        <orcid>0000-0002-3277-5033</orcid>
+      </authors>
+      <authors>
+        <name>Jens Timmer</name>
+        <institution>Institute of Physics, University of Freiburg, 79104 Freiburg, Germany.FDM-Freiburg Center for Data Analysis and Modeling, University of Freiburg, 79104 Freiburg, Germany.Signalling Research Centres BIOSS and CIBSS, University of Freiburg, 79104 Freiburg, Germany.</institution>
+        <orcid>0000-0003-4517-1383</orcid>
+      </authors>
+      <authors>
+        <name>Ursula Klingmüller</name>
+        <institution>Division Systems Biology of Signal Transduction, German Cancer Research Center (DKFZ), 69120 Heidelberg, Germany; Translational Lung Research Center (TLRC), Member of the German Center for Lung Research (DZL), 69120 Heidelberg, Germany. Electronic address: u.klingmueller@dkfz.de.</institution>
+      </authors>
+      <authors>
+        <name>J Hasenauer</name>
+        <orcid>0000-0002-4935-3312</orcid>
+      </authors>
+      <authors>
+        <name>Marcel Schilling</name>
+        <institution>Division Systems Biology of Signal Transduction, German Cancer Research Center (DKFZ), Heidelberg, Germany.</institution>
+        <orcid>0000-0002-9517-5166</orcid>
+      </authors>
+    </authors>
+  </publication>
+  <files>
+    <main>
+      <main>
+        <name>Adlung2021 _model_jakstat_pa.xml</name>
+        <description>SBML L2V4 file for the curated model</description>
+        <fileSize>101139</fileSize>
+        <mimeType>application/xml</mimeType>
+        <md5sum>a134dfa6ac596c58e229fd9cb78ea4c2</md5sum>
+        <sha1sum>549362abfab6774806aa5cfa335cbe748d47c3d3</sha1sum>
+        <sha256sum>7071ae4d6e00de9f3f1d1003368c89a55a0b08e2195d3c859ca2484ecf7b1041</sha256sum>
+      </main>
+    </main>
+    <additional>
+      <additional>
+        <name>Adlung2021 _model_jakstat_pa.cps</name>
+        <description>COPASI file for the curated model</description>
+        <fileSize>168484</fileSize>
+        <mimeType>application/xml</mimeType>
+        <md5sum>fc933c63ea8444cae7dea2e99179144b</md5sum>
+        <sha1sum>f44ccce54db57465c14ff59287828d51a6cf7bde</sha1sum>
+        <sha256sum>f66cae42f52614966940a9b915b4e3f7db3d2bc91d9a067be151193203f16b15</sha256sum>
+      </additional>
+      <additional>
+        <name>Adlung2021 _model_jakstat_pa.sedml</name>
+        <description>SEDML file for the curated model</description>
+        <fileSize>6453</fileSize>
+        <mimeType>application/xml</mimeType>
+        <md5sum>9886a0347da8a1a2cf91671ce03406b4</md5sum>
+        <sha1sum>7b9531a25eb575d47806822b2505f6d2b356bc27</sha1sum>
+        <sha256sum>888fc1043fcc5eb086a01958d084bd78681a0ba175e974a01b8f2f6ead2d2177</sha256sum>
+      </additional>
+      <additional>
+        <name>model_jakstat_pa.xml</name>
+        <description>Population-average mathematical model of Epo-induced JAK2/STAT5 signal transduction in CFU-E cells</description>
+        <fileSize>33206</fileSize>
+        <mimeType>application/xml</mimeType>
+        <md5sum>fe0a275a24059c9957764447ab5f58cd</md5sum>
+        <sha1sum>1b4fb51bbfbc30b512dc90d6726c746ec7f15243</sha1sum>
+        <sha256sum>04800de71ea6af79788538770c12f478736cac4e96c92d3b9d811d0387deb509</sha256sum>
+      </additional>
+    </additional>
+  </files>
+  <history>
+    <revisions>
+      <revisions>
+        <version>2</version>
+        <submitted>1628861621000</submitted>
+        <submitter>Krishna Kumar Tiwari</submitter>
+        <comment>Updated model description and publication id.</comment>
+      </revisions>
+      <revisions>
+        <version>4</version>
+        <submitted>1706292876000</submitted>
+        <submitter>Krishna Kumar Tiwari</submitter>
+        <comment>Automatically added model identifier BIOMD0000001077</comment>
+      </revisions>
+    </revisions>
+  </history>
+  <firstPublished>1706292881000</firstPublished>
+  <submissionId>MODEL2103080001</submissionId>
+  <publicationId>BIOMD0000001077</publicationId>
+  <modellingApproach>
+    <accession>MAMO_0000046</accession>
+    <name>ordinary differential equation model</name>
+    <resource>http://identifiers.org/mamo/MAMO_0000046</resource>
+  </modellingApproach>
+  <curationStatus>CURATED</curationStatus>
+  <vcsIdentifier>aaj</vcsIdentifier>
+</Model>
