@@ -1,0 +1,19 @@
+[project]
+name = "biograph"
+version = "0.1.0"
+authors = [
+    {name = "Andre Toerien", email = "andre.toerien8@gmail.com"},
+    {name = "Ethan Wolff", email = "thesisyphean256@gmail.com"},
+    {name = "Luke Eberhard", email = "luke.eberhard@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
