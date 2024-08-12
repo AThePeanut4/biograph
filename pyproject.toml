@@ -8,6 +8,7 @@ authors = [
 ]
 dependencies = [
     "neo4j>=5.23.1",
+    "neo4jsbml @ git+https://github.com/brsynth/neo4jsbml.git@1.0.1"
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -19,3 +20,6 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.resolution]
+excludes = ["conda-build", "neo4j-python-driver"]
