@@ -1,0 +1,15 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+database "Neo4j" as DB
+database "CheBI/UniProt" as CheBI
+
+User -> System: search()
+System -> CheBI: [query is not an identifier] resolveIdentifier()
+CheBI --> System: Identifier
+System -> DB: searchByIdentifier()
+DB ---> System: Models containing the identifier
+
+System ---> User: Models matching the search query
+
+@enduml

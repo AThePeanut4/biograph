@@ -1,0 +1,78 @@
+@startgantt
+Project starts 2024-07-26
+saturday are closed
+sunday are closed
+
+[Roles] requires 1 day
+[Risks] requires 4 days and starts on 2024-07-29
+[Roles] -> [Risks]
+[Goals/Scope] requires 4 days and starts on 2024-07-29
+[Roles] -> [Goals/Scope]
+
+[Stage 1 hand-in] happens 2024-08-02
+[Risks] -> [Stage 1 hand-in]
+
+[Use cases] requires 2 days
+[Goals/Scope] -> [Use cases]
+[Analysis model] requires 2 days and starts on 2024-08-05
+[Use cases] -> [Analysis model]
+[Dynamic model] requires 2 days and starts on 2024-08-05
+[Use cases] -> [Dynamic model]
+[Test plan] requires 2 days and starts on 2024-08-05
+[Use cases] -> [Test plan]
+
+[Stage 2 hand-in] happens 2024-08-08
+[Analysis model] -> [Stage 2 hand-in]
+
+[Set up and test neo4jsbml] requires 1 days
+[Analysis model] -> [Set up and test neo4jsbml]
+[Prototype SBML to neo4j pipeline] requires 3 days
+[Set up and test neo4jsbml] -> [Prototype SBML to neo4j pipeline]
+[Prototype model merging] requires 3 days and starts on 2024-08-12
+[Set up and test neo4jsbml] -> [Prototype model merging]
+[Prototype simple database querying] requires 2 days and starts on 2024-08-13
+[Set up and test neo4jsbml] -> [Prototype simple database querying]
+[Prototype GUI] requires 2 days and starts on 2024-08-14
+[Set up and test neo4jsbml] -> [Prototype GUI]
+
+[Prototype demonstration] happens 2024-08-16
+[Prototype SBML to neo4j pipeline] -> [Prototype demonstration]
+[Prototype simple database querying] -> [Prototype demonstration]
+[Prototype model merging] -> [Prototype demonstration]
+[Prototype GUI] -> [Prototype demonstration]
+
+[Finalize SBML to neo4j pipeline] requires 3 days and starts on 2024-08-19
+[Prototype SBML to neo4j pipeline] -> [Finalize SBML to neo4j pipeline]
+[Implement querying from external databases] requires 2 days and starts on 2024-08-21
+[Prototype demonstration] -> [Implement querying from external databases]
+[Implement advanced queries: clique- and path-finding] requires 3 days and starts on 2024-08-22
+[Prototype demonstration] -> [Implement advanced queries: clique- and path-finding]
+[Implement overlap detection and merging] requires 3 days and starts on 2024-08-23
+[Prototype demonstration] -> [Implement overlap detection and merging]
+[Implement model visualisation] requires 3 days and starts on 2024-08-27
+[Prototype demonstration] -> [Implement model visualisation]
+[Finalize GUI] requires 2 days
+[Prototype GUI] -> [Finalize GUI]
+[Implement model visualisation] -> [Finalize GUI]
+[Usability testing] requires 2 days
+[Finalize GUI] -> [Usability testing]
+[Integration testing] requires 3 days and starts on 2024-09-04
+[Finalize GUI] -> [Integration testing]
+[Performance testing and improvements] requires 3 days and starts on 2024-09-04
+[Finalize GUI] -> [Performance testing and improvements]
+[Write user manual and documentation] requires 2 days and starts on 2024-09-06
+[Usability testing] -> [Write user manual and documentation]
+[Write project report] requires 7 days
+[Write user manual and documentation] -> [Write project report]
+
+[Final project deadline] happens 2024-09-20
+
+[Roles] is 100% completed
+[Risks] is 100% completed
+[Goals/Scope] is 100% completed
+[Use cases] is 100% completed
+[Analysis model] is 100% complete
+[Dynamic model] is 100% completed
+[Test plan] is 100% completed
+
+@endgantt

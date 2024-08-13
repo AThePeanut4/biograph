@@ -1,0 +1,17 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+database "Neo4j" as DB
+
+User --> System: listModels()
+System -> DB: selectAllModels()
+DB --> System: All models in the database
+System --> User: List of models
+
+User --> System: visualiseModel()
+System -> DB: selectModel()
+DB --> System: Specified model
+System -> System: generateVisualisation()
+System --> User: Model visualisation
+
+@enduml

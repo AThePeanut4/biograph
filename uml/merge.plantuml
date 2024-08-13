@@ -1,0 +1,17 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+database "Neo4j" as DB
+
+User --> System: generateMergeProposal()
+System -> DB: selectPartialDuplicates()
+DB --> System: List of models which overlap
+System -> System: calcOverlap()
+System --> User: Merge proposal
+User -> User: Review merge proposal
+User -> System: respondToProposal()
+System -> DB: [proposal accepted] mergeModels()
+DB ---> System: Merge successful
+System ---> User: Merge complete
+
+@enduml

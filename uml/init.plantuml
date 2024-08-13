@@ -1,0 +1,21 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+entity "neo4jsbml" as neo4jsbml
+database "Neo4j" as DB
+entity "BioModels" as BioModels
+
+User -> System: loadBioModels()
+System -> BioModels: downloadModels()
+BioModels --> System: SBML models
+loop for each model
+  System -> neo4jsbml: importModel()
+  neo4jsbml -> neo4jsbml: convertSBMLToNeo4j()
+  neo4jsbml -> DB: addModel()
+  DB --> neo4jsbml: Add successful
+  neo4jsbml ---> System: Import complete
+end
+
+System ---> User: Loading complete
+
+@enduml

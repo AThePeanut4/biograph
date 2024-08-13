@@ -1,0 +1,15 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+database "Neo4j" as DB
+
+User --> System: findCliques()
+System -> DB: selectAllModels()
+DB --> System: All models in the database
+System -> System: calculateCliques()
+DB ---> System: Models similar to input model
+System -> System: Remove models by clique
+
+System ---> User: Clique information
+
+@enduml

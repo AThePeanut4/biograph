@@ -1,0 +1,17 @@
+@startuml
+actor "Biologist" as User
+participant "BioGraph" as System
+database "Neo4j" as DB
+
+User -> System: listModels()
+System -> DB: selectAllModels()
+DB --> System: All models in the database
+System --> User: List of models
+User -> System: findSimilarModels()
+System -> DB: selectBySimilarity()
+DB ---> System: Models similar to input model
+System -> System: Sort models by similarity
+
+System ---> User: List of similar models
+
+@enduml
