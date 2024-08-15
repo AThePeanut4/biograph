@@ -8,6 +8,7 @@ from .routes import (
     model as model_routes,
     node as node_routes,
     relationship as relationship_routes,
+    query as query_routes,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,3 +29,4 @@ api.add_middleware(GZipMiddleware)
 api.include_router(model_routes.router)
 api.include_router(node_routes.router)
 api.include_router(relationship_routes.router)
+api.include_router(query_routes.router)

@@ -60,17 +60,28 @@ class Database:
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
+    ) -> list[Any]:
+        result = session.run(cast(LiteralString, q), params)
+        values = result.data()
+
+        summary = result.consume()
+        self.log_summary(summary)
+
+        return values
+
+    def query_single(
+        self,
+        session: neo4j.Session,
+        q: str,
+        params: dict[str, typing.Any] | None = None,
     ) -> Any:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            value = result.value()[0]
+        result = session.run(cast(LiteralString, q), params)
+        values = result.value()[0]
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return value
-
-        return session.execute_read(fn)
+        return values
 
     def query_graph(
         self,
@@ -78,16 +89,13 @@ class Database:
         q: str,
         params: dict[str, typing.Any] | None = None,
     ) -> Graph:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            graph = result.graph()
+        result = session.run(cast(LiteralString, q), params)
+        graph = result.graph()
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return Graph.from_neo4j(graph)
-
-        return session.execute_read(fn)
+        return Graph.from_neo4j(graph)
 
     def query_node(
         self,
@@ -95,16 +103,13 @@ class Database:
         q: str,
         params: dict[str, typing.Any] | None = None,
     ) -> Node:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            node = result.value()[0]
+        result = session.run(cast(LiteralString, q), params)
+        node = result.value()[0]
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return Node.from_neo4j(node)
-
-        return session.execute_read(fn)
+        return Node.from_neo4j(node)
 
     def query_nodes(
         self,
@@ -112,16 +117,13 @@ class Database:
         q: str,
         params: dict[str, typing.Any] | None = None,
     ) -> list[Node]:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            nodes = result.value()
+        result = session.run(cast(LiteralString, q), params)
+        nodes = result.value()
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return [Node.from_neo4j(n) for n in nodes]
-
-        return session.execute_read(fn)
+        return [Node.from_neo4j(n) for n in nodes]
 
     def query_relationship(
         self,
@@ -129,16 +131,13 @@ class Database:
         q: str,
         params: dict[str, typing.Any] | None = None,
     ) -> Relationship:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            node = result.value()[0]
+        result = session.run(cast(LiteralString, q), params)
+        node = result.value()[0]
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return Relationship.from_neo4j(node)
-
-        return session.execute_read(fn)
+        return Relationship.from_neo4j(node)
 
     def query_relationships(
         self,
@@ -146,20 +145,17 @@ class Database:
         q: str,
         params: dict[str, typing.Any] | None = None,
     ) -> list[Relationship]:
-        def fn(tx: neo4j.ManagedTransaction):
-            result = tx.run(cast(LiteralString, q), params)
-            nodes = result.value()
+        result = session.run(cast(LiteralString, q), params)
+        nodes = result.value()
 
-            summary = result.consume()
-            self.log_summary(summary)
+        summary = result.consume()
+        self.log_summary(summary)
 
-            return [Relationship.from_neo4j(n) for n in nodes]
-
-        return session.execute_read(fn)
+        return [Relationship.from_neo4j(n) for n in nodes]
 
     def get_max_tag(self) -> int:
         with self.session() as session:
-            ret = self.query(session, "MATCH (n: Model) RETURN max(n.tag)")
+            ret = self.query_single(session, "MATCH (n: Model) RETURN max(n.tag)")
             return int(ret or 0)
 
     def get_graph(self) -> Graph:
