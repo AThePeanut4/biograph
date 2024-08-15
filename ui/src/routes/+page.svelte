@@ -1,2 +1,9 @@
-<h1>Let's go, babyyy!!</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+</script>
+
+<div class="flex h-full flex-col">
+	<div class="m-auto text-center">
+		<h1 class="text-3xl font-bold">Welcome to BioGraph!</h1>
+		<h1 class="text-xl">{"{{Cool Visualisation Here}}"}</h1>
+	</div>
+</div>

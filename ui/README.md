@@ -1,10 +1,4 @@
 # BioGraph UI
 
-To start the development server, run `bun --bun run dev -- --open`.
-
-## TODO
-
-1. Welcome Page
-2. Import Model
-3. Query Database
-4. Visualise Model
+Bun needs to be installed to run this UI.
+Once bun is installed, run `bun install` followed by `bun --bun run dev -- --open`.
