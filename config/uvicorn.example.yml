@@ -1,0 +1,7 @@
+# Uvicorn settings - see https://www.uvicorn.org/settings/
+# uvicorn.yml is used when running in prod mode
+host: 127.0.0.1
+port: 8000
+root_path: /api
+forwarded_allow_ips: 127.0.0.1
+log_config: config/logging.yml

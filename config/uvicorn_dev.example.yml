@@ -1,0 +1,4 @@
+# Uvicorn settings - see https://www.uvicorn.org/settings/
+# uvicorn_dev.yml is used when running in dev mode
+reload: true
+log_config: config/logging_dev.yml

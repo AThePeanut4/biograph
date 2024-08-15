@@ -7,8 +7,13 @@ authors = [
     {name = "Luke Eberhard", email = "luke.eberhard@gmail.com"},
 ]
 dependencies = [
+    "fastapi[standard]>=0.112.0",
     "neo4j>=5.23.1",
-    "neo4jsbml @ git+https://github.com/brsynth/neo4jsbml.git@1.0.1"
+    "neo4jsbml @ git+https://github.com/brsynth/neo4jsbml.git@1.0.1",
+    "pydantic>=2.8.2",
+    "python-libsbml>=5.20.4",
+    "pyyaml>=6.0.2",
+    "uvicorn[standard]>=0.30.6",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -23,3 +28,7 @@ distribution = true
 
 [tool.pdm.resolution]
 excludes = ["conda-build", "neo4j-python-driver"]
+
+[tool.pdm.scripts]
+dev = "scripts/run_dev.py"
+prod = "scripts/run.py"
