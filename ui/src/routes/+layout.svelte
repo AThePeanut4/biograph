@@ -2,7 +2,7 @@
     import "../app.css";
     import Navbar from "./Navbar.svelte";
     const links = {
-        "Documentation": "docs",
+        "Documentation": "https://elgoog.co.za/api/docs/",
         "Server": "https://elgoog.co.za:7473",
     };
 </script>

@@ -145,7 +145,7 @@
 				<h3 class="text-lg font-bold">Upload Model</h3>
 				<p class="py-4">Please select an SBML file.</p>
 				<input bind:files type="file" class="file-input file-input-bordered mx-4 w-full max-w-xs" />
-				<button class="btn">Upload</button>
+				<button class="btn" on:click={() => uploadModel()}>Upload</button>
 			</div>
 		</dialog>
 
