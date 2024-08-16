@@ -37,7 +37,8 @@
 				seenLabels.push(node.label);
 			}
 
-			graph.addNode(node.id, { label: node.label, size: NODE_SIZE, x, y, color });
+			const label = `${node.label} - ${node.properties.name}`;
+			graph.addNode(node.id, { label, size: NODE_SIZE, x, y, color });
 		}
 
 		for (const edge of data.relationships) {
