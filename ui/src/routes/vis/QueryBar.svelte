@@ -18,13 +18,15 @@
 
 		let seenLabels = [];
 		const colours = ['#45F0DF', '#C2CAE8', '#942911', '#FDCA40', '#FE5D26', '#297373', '#F7FF58'];
+
+		/* This randomises the order of the colour palette
 		let currentIndex = colours.length;
 		while (currentIndex != 0) {
 			let randomIndex = Math.floor(Math.random() * currentIndex);
 			currentIndex--;
 
 			[colours[currentIndex], colours[randomIndex]] = [colours[randomIndex], colours[currentIndex]];
-		}
+		}*/
 
 		for (const node of data.nodes) {
 			const x = Math.floor(Math.random() * 150);
