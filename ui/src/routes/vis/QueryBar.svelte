@@ -130,7 +130,9 @@
 			return;
 		}
 
-		const endpoint = `${ENDPOINT}/query/graph?q=${arbQueryValue}`;
+		let params = new URLSearchParams();
+		params.append("q", arbQueryValue);
+		const endpoint = `${ENDPOINT}/query/graph?${params.toString()}`;
 		await visualiseFromEndpoint(endpoint);
 	}
 </script>
