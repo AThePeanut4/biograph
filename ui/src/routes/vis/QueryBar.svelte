@@ -72,15 +72,15 @@
 	let files;
 
 	async function uploadModel() {
-		const file = files[0];
-		const formData = new FormData();
-		formData.append('file', file);
-
 		const endpoint = ENDPOINT + '/model/upload';
-		await fetch(endpoint, { method: 'POST', body: formData });
+		for (const file of files) {
+			const formData = new FormData();
+			formData.append('file', file);
+			await fetch(endpoint, { method: 'POST', body: formData });
+		}
 
 		// TODO: Do the files need to flushed here?
-		// files = null;
+		files = null;
 	}
 
 	// --- Query by Name ---
