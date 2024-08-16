@@ -1,8 +1,8 @@
 <script>
-    import QueryBar from "./QueryBar.svelte";
+  import QueryBar from "./QueryBar.svelte";
 </script>
 
-<div class="flex flex-col h-full">
-    <div class="grow" id="container"></div>
-    <QueryBar />
+<div class="flex h-full flex-col">
+  <div class="grow" id="container"></div>
+  <QueryBar />
 </div>
