@@ -57,10 +57,10 @@
 		if (!endpointAndParameters.includes('?')) {
 			endpointAndParameters += '/';
 		}
+
 		const res = await fetch(endpointAndParameters, { method: 'GET' });
 		const data = await res.json();
 
-		console.log(data);
 		if (data) {
 			visualiseData(data);
 		}
