@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 api = FastAPI()
 
+api.add_middleware(GZipMiddleware)
 api.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,7 +24,6 @@ api.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-api.add_middleware(GZipMiddleware)
 
 
 api.include_router(model_routes.router)
