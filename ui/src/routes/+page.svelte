@@ -1,6 +1,3 @@
-<script>
-</script>
-
 <div class="flex h-full flex-col">
   <div class="m-auto text-center">
     <h1 class="text-3xl font-bold">Welcome to BioGraph!</h1>

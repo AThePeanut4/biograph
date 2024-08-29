@@ -1,7 +1,17 @@
 <script lang="ts">
+  export let container: HTMLElement;
+
   import Graph from "graphology";
   import forceAtlas2 from "graphology-layout-forceatlas2";
-  import Sigma from "sigma";
+
+  let sigma: import("sigma").Sigma;
+
+  import { onMount } from "svelte";
+  onMount(async () => {
+    const Sigma = (await import("sigma")).Sigma;
+    // Instantiate sigma.js with an empty graph
+    sigma = new Sigma(new Graph(), container);
+  });
 
   // TODO: Best way to do this?
   const ENDPOINT = "https://elgoog.co.za/api";
@@ -9,24 +19,38 @@
   const EDGE_SIZE = 3;
   const FORCE_ITERATIONS = 20;
 
-  function visualiseData(data: object) {
-    let container = document.getElementById("container")!;
-    container.innerHTML = "";
+  interface IGraph {
+    nodes: INode[];
+    relationships: IRelationship[];
+  }
 
+  interface INode {
+    id: string;
+    label: string;
+    properties: Record<string, string>;
+  }
+
+  interface IRelationship {
+    start_node: string;
+    end_node: string;
+    properties: Record<string, string>;
+  }
+
+  function visualiseData(data: IGraph) {
     // Create a graphology graph
     const graph = new Graph();
 
     let seenLabels = [];
     const colours = ["#45F0DF", "#C2CAE8", "#942911", "#FDCA40", "#FE5D26", "#297373", "#F7FF58"];
 
-    /* This randomises the order of the colour palette
-		let currentIndex = colours.length;
-		while (currentIndex != 0) {
-			let randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-
-			[colours[currentIndex], colours[randomIndex]] = [colours[randomIndex], colours[currentIndex]];
-		}*/
+    // // This randomises the order of the colour palette
+    // let currentIndex = colours.length;
+    // while (currentIndex != 0) {
+    //   let randomIndex = Math.floor(Math.random() * currentIndex);
+    //   currentIndex--;
+    //
+    //   [colours[currentIndex], colours[randomIndex]] = [colours[randomIndex], colours[currentIndex]];
+    // }
 
     for (const node of data.nodes) {
       const x = Math.floor(Math.random() * 150);
@@ -49,8 +73,8 @@
 
     forceAtlas2.assign(graph, FORCE_ITERATIONS);
 
-    // Instantiate sigma.js and render the graph
-    const sigmaInstance = new Sigma(graph, container);
+    // display the graph
+    sigma.setGraph(graph);
   }
 
   async function visualiseFromEndpoint(endpointAndParameters: string) {
@@ -62,7 +86,7 @@
     const data = await res.json();
 
     if (data) {
-      visualiseData(data);
+      visualiseData(data as IGraph);
     }
   }
 
@@ -72,9 +96,18 @@
   }
 
   // --- Upload Model ---
-  let files;
+
+  let uploadModelModal: HTMLDialogElement;
+  function showUploadModelModal() {
+    uploadModelModal.showModal();
+  }
+
+  let uploadFilesInput: HTMLInputElement;
 
   async function uploadModel() {
+    const files = uploadFilesInput.files;
+    if (!files) return;
+
     const endpoint = ENDPOINT + "/model/upload";
     for (const file of files) {
       const formData = new FormData();
@@ -82,11 +115,17 @@
       await fetch(endpoint, { method: "POST", body: formData });
     }
 
-    // TODO: Do the files need to flushed here?
-    files = null;
+    // clears the file list
+    uploadFilesInput.value = "";
   }
 
   // --- Query by Name ---
+
+  let queryByNameModal: HTMLDialogElement;
+  function showQueryByNameModal() {
+    queryByNameModal.showModal();
+  }
+
   let queryName = "";
 
   async function queryByName() {
@@ -99,6 +138,12 @@
   }
 
   // --- Query by Node ---
+
+  let queryByNodeModal: HTMLDialogElement;
+  function showQueryByNodeModal() {
+    queryByNodeModal.showModal();
+  }
+
   let queryLabel = "";
   let queryProperty = "";
   let queryValue = "";
@@ -123,7 +168,12 @@
   }
 
   // --- Arbitrary Query ---
-  let arbQueryValue;
+
+  let arbQueryModal: HTMLDialogElement;
+  function showArbQueryModal() {
+    arbQueryModal.showModal();
+  }
+  let arbQueryValue: string;
 
   async function arbQuery() {
     if (!arbQueryValue) {
@@ -141,21 +191,26 @@
   <div class="m-auto space-x-8 text-center">
     <button class="btn" on:click={() => loadModels()}>Load Models</button>
 
-    <button class="btn" onclick="upload_model_modal.showModal()">Upload Model</button>
-    <dialog id="upload_model_modal" class="modal">
+    <button class="btn" on:click={() => showUploadModelModal()}>Upload Model</button>
+    <dialog bind:this={uploadModelModal} class="modal">
       <div class="modal-box">
         <form method="dialog">
           <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
         </form>
         <h3 class="text-lg font-bold">Upload Model</h3>
         <p class="py-4">Please select an SBML file.</p>
-        <input bind:files type="file" class="file-input file-input-bordered mx-4 w-full max-w-xs" />
+        <input
+          bind:this={uploadFilesInput}
+          type="file"
+          multiple
+          class="file-input file-input-bordered mx-4 w-full max-w-xs"
+        />
         <button class="btn" on:click={() => uploadModel()}>Upload</button>
       </div>
     </dialog>
 
-    <button class="btn" onclick="query_by_name_modal.showModal()">Query by Name</button>
-    <dialog id="query_by_name_modal" class="modal">
+    <button class="btn" on:click={() => showQueryByNameModal()}>Query by Name</button>
+    <dialog bind:this={queryByNameModal} class="modal">
       <div class="modal-box">
         <form method="dialog">
           <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
@@ -172,8 +227,8 @@
       </div>
     </dialog>
 
-    <button class="btn" onclick="query_by_node_modal.showModal()">Query by Node</button>
-    <dialog id="query_by_node_modal" class="modal">
+    <button class="btn" on:click={() => showQueryByNodeModal()}>Query by Node</button>
+    <dialog bind:this={queryByNodeModal} class="modal">
       <div class="modal-box">
         <form method="dialog">
           <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
@@ -198,8 +253,8 @@
       </div>
     </dialog>
 
-    <button class="btn" onclick="arb_query_modal.showModal()">Arbitrary Query</button>
-    <dialog id="arb_query_modal" class="modal">
+    <button class="btn" on:click={() => showArbQueryModal()}>Arbitrary Query</button>
+    <dialog bind:this={arbQueryModal} class="modal">
       <div class="modal-box">
         <form method="dialog">
           <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
