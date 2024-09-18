@@ -30,9 +30,9 @@
     <a href="/" class="btn btn-ghost text-xl">BioGraph</a>
   </div>
   <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal px-1">
+    <ul class="menu menu-horizontal">
       {#each Object.entries(links) as [text, href]}
-        <li><a {href}>{text}</a></li>
+        <li class="mx-1"><a {href}>{text}</a></li>
       {/each}
     </ul>
   </div>
