@@ -38,7 +38,7 @@ def model_by_node(
 
 
 @router.post("/upload")
-async def upload(db: DbDep, file: UploadFile) -> None:
+async def upload(db: DbDep, file: UploadFile, schema: UploadFile | None = None) -> None:
     b = await file.read()
     xml = b.decode()
 
@@ -46,4 +46,10 @@ async def upload(db: DbDep, file: UploadFile) -> None:
 
     logger.info("Importing SBML, using tag %d", tag)
 
-    sbml_to_neo4j(xml, tag)
+    if schema is not None:
+        b = await schema.read()
+        sch = b.decode()
+    else:
+        sch = None
+
+    sbml_to_neo4j(xml, sch, tag)

@@ -1,5 +1,6 @@
 import logging
 from urllib.parse import urlparse
+from tempfile import NamedTemporaryFile
 
 import libsbml
 from neo4jsbml import arrows, connect, sbml
@@ -19,7 +20,7 @@ class Config(BaseModel):
         return config.get(cls, "neo4jsbml")
 
 
-def sbml_to_neo4j(xml: str, tag: int):
+def sbml_to_neo4j(xml: str, schema: str | None, tag: int):
     cfg = Config.get()
     db_cfg = DbConfig.get()
 
@@ -43,7 +44,13 @@ def sbml_to_neo4j(xml: str, tag: int):
     sbm = sbml.SbmlToNeo4j(str(tag), document=doc)
 
     logger.info("Loading schema")
-    arr = arrows.Arrows.from_json(cfg.schema_path)
+    if schema is not None:
+        # need a tempfile because neo4jsbml needs a file name
+        with NamedTemporaryFile("w+") as f:
+            f.write(schema)
+            arr = arrows.Arrows.from_json(f.name)
+    else:
+        arr = arrows.Arrows.from_json(cfg.schema_path)
 
     logging.info("Map schema to data - nodes")
     nod = sbm.format_nodes(nodes=arr.nodes)
