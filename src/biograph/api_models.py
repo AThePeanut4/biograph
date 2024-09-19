@@ -49,3 +49,8 @@ class Graph(BaseModel):
         nodes = [Node.from_node(n) for _, n in g.nodes.data("node")]
         relationships = [Relationship.from_edge(e) for _, _, e in g.edges.data("edge")]
         return cls(nodes=nodes, relationships=relationships)
+
+
+class MergeNodesInput(BaseModel):
+    uuids: list[str]
+    apply: bool = False

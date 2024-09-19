@@ -215,6 +215,19 @@ def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph
     )
 
 
+def get_nodes_with_neighbours(
+    session: neo4j.Session, uuids: list[str]
+) -> nx.MultiDiGraph:
+    return query_graph(
+        session,
+        "UNWIND $uuids AS uuid "
+        "MATCH (n {uuid: uuid}) "
+        "MATCH (n)-[r]-(m) "
+        "RETURN n, r, m",
+        {"uuids": uuids},
+    )
+
+
 def get_nodes(session: neo4j.Session) -> list[Node]:
     return query_nodes(session, "MATCH (n) RETURN n")
 
