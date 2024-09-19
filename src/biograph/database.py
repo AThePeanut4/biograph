@@ -215,14 +215,6 @@ def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph
     )
 
 
-def get_model_by_tag(session: neo4j.Session, tag: str) -> nx.MultiDiGraph:
-    return query_graph(
-        session,
-        "MATCH (m{tag: $tag}) OPTIONAL MATCH (m)-[r]-() RETURN m, r",
-        {"tag": tag},
-    )
-
-
 def get_nodes(session: neo4j.Session) -> list[Node]:
     return query_nodes(session, "MATCH (n) RETURN n")
 

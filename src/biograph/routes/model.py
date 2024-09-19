@@ -58,16 +58,6 @@ def model_by_node_uuid(db: database.DbDep, node_uuid: str) -> Graph:
     return Graph.from_graph(g)
 
 
-@router.get("/by-tag/{tag}")
-def mode_by_tag(
-    db: database.DbDep,
-    tag: str,
-) -> Graph:
-    with db.session() as session:
-        g = database.get_model_by_tag(session, tag)
-    return Graph.from_graph(g)
-
-
 @router.post("/upload")
 async def upload_sbml(file: UploadFile, arrows_json: UploadFile | None = None) -> None:
     b = await file.read()
