@@ -123,6 +123,9 @@ def calc_similarity(
     graph: nx.MultiDiGraph,
     uuids: list[str],
 ) -> int:
+    if len(uuids) < 2:
+        return 100
+
     score = 0
     i = 0
 
