@@ -288,6 +288,14 @@
       "type": "HAS_PARAMETER",
       "properties": {},
       "style": {}
+    },
+    {
+      "id": "n14",
+      "type": "HAS_UNITDEFINITION",
+      "style": {},
+      "properties": {},
+      "fromId": "n5",
+      "toId": "n3"
     }
   ]
 }
