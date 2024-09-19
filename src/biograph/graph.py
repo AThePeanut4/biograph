@@ -6,8 +6,9 @@ from typing import cast
 import neo4j.graph
 import networkx as nx
 
+from . import database
 from .edges import Edge
-from .nodes import Node
+from .nodes import Model, Node
 
 logger = logging.getLogger(__name__)
 
@@ -140,27 +141,45 @@ def merge_nodes(
     if len(uuids) < 2:
         return
 
-    dst = cast(Node, graph.nodes[uuids[0]]["node"])
+    dst_uuid = uuids[0]
+    dst = cast(Node, graph.nodes[dst_uuid]["node"])
+    properties = dst.properties.copy()
 
     for src_uuid in uuids[1:]:
+        src = cast(Node, graph.nodes[src_uuid]["node"])
+
+        # copy edges to dst
         for edges in graph.succ[src_uuid].values():
             for edgedict in edges.values():
                 edge = cast(Edge, edgedict["edge"])
+                new_edge = edge.copy(start_node=dst.uuid)
                 graph.add_edge(
-                    dst.uuid,
-                    edge.end_node,
-                    key=edge.uuid,
-                    edge=edge,
+                    new_edge.start_node,
+                    new_edge.end_node,
+                    key=new_edge.uuid,
+                    edge=new_edge,
                 )
         for edges in graph.pred[src_uuid].values():
             for edgedict in edges.values():
                 edge = cast(Edge, edgedict["edge"])
+                new_edge = edge.copy(end_node=dst.uuid)
                 graph.add_edge(
-                    edge.start_node,
-                    dst.uuid,
-                    key=edge.uuid,
-                    edge=edge,
+                    new_edge.start_node,
+                    new_edge.end_node,
+                    key=new_edge.uuid,
+                    edge=new_edge,
                 )
+
+        # merge properties without overwriting
+        for k, v in src.properties.items():
+            if k not in properties:
+                properties[k] = v
+
+        # remove src
         graph.remove_node(src_uuid)
+
+    # update node object in graph
+    new_dst = dst.copy(properties=properties)
+    graph.nodes[dst_uuid]["node"] = new_dst
 
     return graph

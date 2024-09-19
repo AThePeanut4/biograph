@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Self
 
 import neo4j.graph
 
@@ -29,6 +29,28 @@ class Edge:
         self.start_node = start_node
         self.end_node = end_node
         self.properties = properties
+
+    def copy(
+        self,
+        *,
+        uuid: str | None = None,
+        typ: str | None = None,
+        start_node: str | None = None,
+        end_node: str | None = None,
+        properties: dict[str, str] | None = None,
+    ) -> Self:
+        cls = type(self)
+        if uuid is None:
+            uuid = self.uuid
+        if typ is None:
+            typ = self.typ
+        if start_node is None:
+            start_node = self.start_node
+        if end_node is None:
+            end_node = self.end_node
+        if properties is None:
+            properties = self.properties
+        return cls(uuid, typ, start_node, end_node, properties)
 
     @staticmethod
     def from_neo4j(relationship: neo4j.graph.Relationship):

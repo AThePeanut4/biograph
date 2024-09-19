@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from lxml import etree as xml
+from typing import Self
 
 import neo4j.graph
+from lxml import etree as xml
 
 from .utils import get_subclasses
 
@@ -52,6 +53,22 @@ class Node:
                 namespaces=ANNOTATION_NS,
             ):
                 self.identifiers.append(str(el))
+
+    def copy(
+        self,
+        *,
+        uuid: str | None = None,
+        label: str | None = None,
+        properties: dict[str, str] | None = None,
+    ) -> Self:
+        cls = type(self)
+        if uuid is None:
+            uuid = self.uuid
+        if label is None:
+            label = self.label
+        if properties is None:
+            properties = self.properties
+        return cls(uuid, label, properties)
 
     @staticmethod
     def from_neo4j(node: neo4j.graph.Node) -> Node:
