@@ -161,7 +161,7 @@ def get_graph(session: neo4j.Session) -> nx.MultiDiGraph:
     return query_graph(session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r")
 
 
-def get_model_by_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
+def get_model(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
     return query_graph(
         session,
         "MATCH (n:Model {uuid: $uuid}) "
@@ -219,7 +219,7 @@ def get_nodes(session: neo4j.Session) -> list[Node]:
     return query_nodes(session, "MATCH (n) RETURN n")
 
 
-def get_node_by_uuid(session: neo4j.Session, uuid: str) -> Node:
+def get_node(session: neo4j.Session, uuid: str) -> Node:
     return query_node(
         session,
         "MATCH (n) WHERE n.uuid = $uuid RETURN n",
@@ -231,7 +231,7 @@ def get_relationships(session: neo4j.Session) -> list[Edge]:
     return query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
 
-def get_relationship_by_uuid(session: neo4j.Session, uuid: str) -> Edge:
+def get_relationship(session: neo4j.Session, uuid: str) -> Edge:
     return query_relationship(
         session,
         "MATCH ()-[r]-() WHERE n.uuid = $uuid RETURN r",

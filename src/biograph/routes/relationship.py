@@ -15,5 +15,5 @@ def all_relationships(db: database.DbDep) -> list[Relationship]:
 @router.get("/by-id/{relationship_uuid}")
 def relationship_by_uuid(db: database.DbDep, relationship_uuid: str) -> Relationship:
     with db.session() as session:
-        e = database.get_relationship_by_uuid(session, relationship_uuid)
+        e = database.get_relationship(session, relationship_uuid)
     return Relationship.from_edge(e)

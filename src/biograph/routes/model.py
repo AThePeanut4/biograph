@@ -25,7 +25,7 @@ def model_by_uuid(
     model_uuid: str,
 ) -> Graph:
     with db.session() as session:
-        g = database.get_model_by_uuid(session, model_uuid)
+        g = database.get_model(session, model_uuid)
     return Graph.from_graph(g)
 
 

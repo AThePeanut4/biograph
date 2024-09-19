@@ -18,8 +18,8 @@ class Edge:
 
     def __init__(
         self,
-        typ: str,
         uuid: str,
+        typ: str,
         start_node: str,
         end_node: str,
         properties: dict[str, str],
