@@ -64,9 +64,10 @@
         "UnitDefinition"
       ],
       "properties": {
+        "annotation": "",
         "id": "",
-        "name": "",
         "metaid": "",
+        "name": "",
         "sboTerm": ""
       },
       "style": {}
@@ -82,13 +83,14 @@
         "Compartment"
       ],
       "properties": {
+        "annotation": "",
+        "constant": "",
         "id": "",
-        "name": "",
         "metaid": "",
+        "name": "",
         "sboTerm": "",
-        "spatialDimensions": "",
         "size": "",
-        "constant": ""
+        "spatialDimensions": ""
       },
       "style": {}
     },
@@ -103,9 +105,10 @@
         "Model"
       ],
       "properties": {
+        "annotation": "",
         "id": "",
-        "name": "",
         "metaid": "",
+        "name": "",
         "sboTerm": ""
       },
       "style": {}
@@ -121,14 +124,15 @@
         "Unit"
       ],
       "properties": {
-        "id": "",
-        "name": "",
-        "metaid": "",
-        "sboTerm": "",
-        "kind": "",
+        "annotation": "",
         "exponent": "",
-        "scale": "",
-        "multiplier": ""
+        "id": "",
+        "kind": "",
+        "metaid": "",
+        "multiplier": "",
+        "name": "",
+        "sboTerm": "",
+        "scale": ""
       },
       "style": {}
     },
@@ -142,7 +146,11 @@
       "labels": [
         "Species"
       ],
-      "properties": {},
+      "properties": {
+        "annotation": "",
+        "id": "",
+        "metaid": ""
+      },
       "style": {}
     },
     {
@@ -156,7 +164,9 @@
         "Reaction"
       ],
       "properties": {
+        "annotation": "",
         "id": "",
+        "metaid": "",
         "reversible": ""
       },
       "style": {}
@@ -172,7 +182,10 @@
         "KineticLaw"
       ],
       "properties": {
-        "formula": ""
+        "annotation": "",
+        "formula": "",
+        "id": "",
+        "metaid": ""
       },
       "style": {}
     },
@@ -187,7 +200,9 @@
         "Parameter"
       ],
       "properties": {
+        "annotation": "",
         "id": "",
+        "metaid": "",
         "value": ""
       },
       "style": {}
@@ -236,11 +251,11 @@
     },
     {
       "id": "n9",
-      "type": "HAS_KINETICLAW",
-      "style": {},
-      "properties": {},
       "fromId": "n8",
-      "toId": "n9"
+      "toId": "n9",
+      "type": "HAS_KINETICLAW",
+      "properties": {},
+      "style": {}
     },
     {
       "id": "n10",
