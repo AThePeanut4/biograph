@@ -35,6 +35,7 @@ class Edge:
         element_id = relationship.element_id
 
         typ = relationship.type
+        typ_name = typ.casefold().replace("_", "")
 
         start_node, end_node = relationship.nodes
         if start_node is None:
@@ -45,7 +46,7 @@ class Edge:
         properties = dict(relationship.items())
 
         for sub in get_subclasses(Edge):
-            if sub.__name__ == typ:
+            if sub.__name__.casefold() == typ_name:
                 return sub(
                     element_id,
                     typ,
@@ -61,3 +62,43 @@ class Edge:
             end_node.element_id,
             properties,
         )
+
+
+class HasCompartment(Edge):
+    pass
+
+
+class HasKineticLaw(Edge):
+    pass
+
+
+class HasParameter(Edge):
+    pass
+
+
+class HasProduct(Edge):
+    pass
+
+
+class HasReaction(Edge):
+    pass
+
+
+class HasSpecies(Edge):
+    pass
+
+
+class HasUnits(Edge):
+    pass
+
+
+class InCompartment(Edge):
+    pass
+
+
+class IsComposed(Edge):
+    pass
+
+
+class IsReactant(Edge):
+    pass
