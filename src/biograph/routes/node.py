@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 
+from ..api_models import Node
 from ..database import DbDep
-from ..models import Node
 
-router = APIRouter(prefix="/node", tags=["node"])
+router = APIRouter(prefix="/node", tags=["nodes"])
 
 
-@router.get("/")
-def nodes(db: DbDep) -> list[Node]:
+@router.get("/all")
+def all_nodes(db: DbDep) -> list[Node]:
     return db.get_nodes()
 
 

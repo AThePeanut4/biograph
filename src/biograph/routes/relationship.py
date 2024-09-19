@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 
+from ..api_models import Relationship
 from ..database import DbDep
-from ..models import Relationship
 
-router = APIRouter(prefix="/relationship", tags=["relationship"])
+router = APIRouter(prefix="/relationship", tags=["relationships"])
 
 
-@router.get("/")
-def relationships(db: DbDep) -> list[Relationship]:
+@router.get("/all")
+def all_relationships(db: DbDep) -> list[Relationship]:
     return db.get_relationships()
 
 

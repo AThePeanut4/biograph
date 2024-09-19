@@ -3,12 +3,12 @@ from typing import Any
 
 from fastapi import APIRouter
 
+from ..api_models import Graph, Node, Relationship
 from ..database import DbDep
-from ..models import Graph, Node, Relationship
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/query", tags=["query"])
+router = APIRouter(prefix="/query", tags=["queries"])
 
 
 @router.get("/raw")

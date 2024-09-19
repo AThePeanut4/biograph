@@ -21,6 +21,8 @@ class Node(BaseModel):
 
 
 class Relationship(BaseModel):
+    id: str
+    type: str
     start_node: str
     end_node: str
     properties: dict[str, str]
@@ -34,6 +36,8 @@ class Relationship(BaseModel):
             raise ValueError("relationship must have an end node")
 
         return cls(
+            id=relationship.element_id,
+            type=relationship.type,
             start_node=start_node.element_id,
             end_node=end_node.element_id,
             properties=dict(relationship.items()),
