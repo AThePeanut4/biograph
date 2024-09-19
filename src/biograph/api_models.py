@@ -54,3 +54,7 @@ class Graph(BaseModel):
 class MergeNodesInput(BaseModel):
     uuids: list[str]
     apply: bool = False
+
+
+class CalculateSimilarityInput(BaseModel):
+    uuids: list[str]
