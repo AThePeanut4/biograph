@@ -58,19 +58,16 @@ def mode_by_tag(
 
 
 @router.post("/upload")
-async def upload(db: database.DbDep, file: UploadFile, schema: UploadFile | None = None) -> None:
+async def upload_sbml(file: UploadFile, arrows_json: UploadFile | None = None) -> None:
     b = await file.read()
     xml = b.decode()
 
-    with db.session() as session:
-        tag = database.get_max_tag(session) + 1
+    logger.info("Importing SBML")
 
-    logger.info("Importing SBML, using tag %d", tag)
-
-    if schema is not None:
-        b = await schema.read()
-        sch = b.decode()
+    if arrows_json is not None:
+        b = await arrows_json.read()
+        schema = b.decode()
     else:
-        sch = None
+        schema = None
 
-    sbml_to_neo4j(xml, sch, tag)
+    sbml_to_neo4j(xml, schema)

@@ -157,11 +157,6 @@ def query_relationships(
     return [Edge.from_neo4j(n) for n in nodes]
 
 
-def get_max_tag(session: neo4j.Session) -> int:
-    ret = query_single(session, "MATCH (n: Model) RETURN max(n.tag)")
-    return int(ret or 0)
-
-
 def get_graph(session: neo4j.Session) -> nx.MultiDiGraph:
     return query_graph(session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r")
 
@@ -170,9 +165,9 @@ def get_model_by_name(session: neo4j.Session, name: str) -> nx.MultiDiGraph:
     return query_graph(
         session,
         "MATCH (n:Model {name: $name}) "
-        "MATCH (m{tag: n.tag}) "
-        "OPTIONAL MATCH (m)-[r]-() "
-        "RETURN m, r",
+        "CALL apoc.path.subgraphAll(n, {}) "
+        "YIELD nodes, relationships "
+        "RETURN nodes, relationships",
         {"name": name},
     )
 
@@ -191,9 +186,9 @@ def get_model_by_node(
     return query_graph(
         session,
         f"MATCH (n:{label} {{{property}: $value}}) "
-        "MATCH (m{tag: n.tag}) "
-        "OPTIONAL MATCH (m)-[r]-() "
-        "RETURN m, r",
+        "CALL apoc.path.subgraphAll(n, {}) "
+        "YIELD nodes, relationships "
+        "RETURN nodes, relationships",
         {"label": label, "property": property, "value": value},
     )
 
@@ -201,10 +196,10 @@ def get_model_by_node(
 def get_model_by_node_id(session: neo4j.Session, node_id: str) -> nx.MultiDiGraph:
     return query_graph(
         session,
-        "MATCH (n) WHERE elementId(n) = $id"
-        "MATCH (m{tag: n.tag}) "
-        "OPTIONAL MATCH (m)-[r]-() "
-        "RETURN m, r",
+        "MATCH (n) WHERE elementId(n) = $id "
+        "CALL apoc.path.subgraphAll(n, {}) "
+        "YIELD nodes, relationships "
+        "RETURN nodes, relationships",
         {"id": node_id},
     )
 
@@ -238,6 +233,24 @@ def get_relationship_by_id(session: neo4j.Session, relationship_id: str) -> Edge
         session,
         "MATCH ()-[r]-() WHERE elementId(n) = $id RETURN r",
         {"id": relationship_id},
+    )
+
+
+def delete_all_by_tag(session: neo4j.Session, tag: str):
+    query(session, "MATCH (n{tag: $tag}) DETACH DELETE n", {"tag": tag})
+    query(session, "MATCH ()-[r{tag: $tag}]-() DELETE r", {"tag": tag})
+
+
+def remove_tag(session: neo4j.Session, tag: str):
+    query(session, "MATCH (n{tag: $tag}) REMOVE n.tag", {"tag": tag})
+    query(session, "MATCH ()-[r{tag: $tag}]-() REMOVE r.tag", {"tag": tag})
+
+
+def delete_dangling_nodes_by_tag(session: neo4j.Session, tag: str):
+    query(
+        session,
+        "MATCH (n{tag: $tag}) WHERE NOT EXISTS { (m:Model)-[*]-(n) } DETACH DELETE n",
+        {"tag": tag},
     )
 
 
