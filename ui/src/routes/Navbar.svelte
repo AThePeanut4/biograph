@@ -1,7 +1,3 @@
-<script>
-  export let links = {};
-</script>
-
 <div class="navbar bg-base-100">
   <div class="navbar-start">
     <div class="dropdown">
@@ -21,22 +17,10 @@
           />
         </svg>
       </div>
-      <ul class="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
-        {#each Object.entries(links) as [text, href]}
-          <li><a {href}>{text}</a></li>
-        {/each}
-      </ul>
     </div>
     <a href="/" class="btn btn-ghost text-xl">BioGraph</a>
   </div>
-  <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal">
-      {#each Object.entries(links) as [text, href]}
-        <li class="mx-1"><a {href}>{text}</a></li>
-      {/each}
-    </ul>
-  </div>
   <div class="navbar-end">
-    <a href="/vis" class="btn">Visualise</a>
+    <a href="/manual" class="btn">Visualise</a>
   </div>
 </div>
