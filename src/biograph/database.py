@@ -3,11 +3,13 @@ import typing
 from typing import Annotated, Any, LiteralString, cast
 
 import neo4j
+import networkx as nx
 from fastapi import Depends
 from pydantic import BaseModel
 
-from . import config
-from .models import Graph, Node, Relationship
+from . import config, graph
+from .edges import Edge
+from .nodes import Node
 
 logger = logging.getLogger(__name__)
 
@@ -88,14 +90,14 @@ class Database:
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
-    ) -> Graph:
+    ) -> nx.MultiDiGraph:
         result = session.run(cast(LiteralString, q), params)
-        graph = result.graph()
+        g = result.graph()
 
         summary = result.consume()
         self.log_summary(summary)
 
-        return Graph.from_neo4j(graph)
+        return graph.neo4j_to_networkx(g)
 
     def query_node(
         self,
@@ -130,41 +132,41 @@ class Database:
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
-    ) -> Relationship:
+    ) -> Edge:
         result = session.run(cast(LiteralString, q), params)
         node = result.value()[0]
 
         summary = result.consume()
         self.log_summary(summary)
 
-        return Relationship.from_neo4j(node)
+        return Edge.from_neo4j(node)
 
     def query_relationships(
         self,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
-    ) -> list[Relationship]:
+    ) -> list[Edge]:
         result = session.run(cast(LiteralString, q), params)
         nodes = result.value()
 
         summary = result.consume()
         self.log_summary(summary)
 
-        return [Relationship.from_neo4j(n) for n in nodes]
+        return [Edge.from_neo4j(n) for n in nodes]
 
     def get_max_tag(self) -> int:
         with self.session() as session:
             ret = self.query_single(session, "MATCH (n: Model) RETURN max(n.tag)")
             return int(ret or 0)
 
-    def get_graph(self) -> Graph:
+    def get_graph(self) -> nx.MultiDiGraph:
         with self.session() as session:
             return self.query_graph(
                 session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r"
             )
 
-    def get_model_by_name(self, name: str) -> Graph:
+    def get_model_by_name(self, name: str) -> nx.MultiDiGraph:
         with self.session() as session:
             return self.query_graph(
                 session,
@@ -175,12 +177,14 @@ class Database:
                 {"name": name},
             )
 
-    def get_model_by_node(self, label: str, property: str, value: str) -> Graph:
+    def get_model_by_node(
+        self, label: str, property: str, value: str
+    ) -> nx.MultiDiGraph:
         with self.session() as session:
             if not label.isalnum():
                 raise ValueError("invalid label")
             if not property.isalnum():
-                raise ValueError("invalid label")
+                raise ValueError("invalid property")
 
             return self.query_graph(
                 session,
@@ -203,11 +207,11 @@ class Database:
                 {"id": node_id},
             )
 
-    def get_relationships(self) -> list[Relationship]:
+    def get_relationships(self) -> list[Edge]:
         with self.session() as session:
             return self.query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
-    def get_relationship_by_id(self, relationship_id: str) -> Relationship:
+    def get_relationship_by_id(self, relationship_id: str) -> Edge:
         with self.session() as session:
             return self.query_relationship(
                 session,

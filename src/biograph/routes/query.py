@@ -20,16 +20,17 @@ def raw_query(db: DbDep, q: str) -> list[Any]:
 @router.get("/graph")
 def graph_query(db: DbDep, q: str) -> Graph:
     with db.session() as session:
-        return db.query_graph(session, q)
+        g = db.query_graph(session, q)
+        return Graph.from_graph(g)
 
 
 @router.get("/nodes")
 def nodes_query(db: DbDep, q: str) -> list[Node]:
     with db.session() as session:
-        return db.query_nodes(session, q)
+        return [Node.from_node(n) for n in db.query_nodes(session, q)]
 
 
 @router.get("/relationships")
 def relationships_query(db: DbDep, q: str) -> list[Relationship]:
     with db.session() as session:
-        return db.query_relationships(session, q)
+        return [Relationship.from_edge(e) for e in db.query_relationships(session, q)]

@@ -1,7 +1,9 @@
 import logging
 
-import neo4j.graph
+import networkx as nx
 from pydantic import BaseModel
+
+from . import nodes, edges
 
 logger = logging.getLogger(__name__)
 
@@ -12,11 +14,11 @@ class Node(BaseModel):
     properties: dict[str, str]
 
     @classmethod
-    def from_neo4j(cls, node: neo4j.graph.Node):
+    def from_node(cls, node: nodes.Node):
         return cls(
             id=node.element_id,
-            label=next(iter(node.labels)),
-            properties=dict(node.items()),
+            label=node.label,
+            properties=node.properties,
         )
 
 
@@ -28,19 +30,13 @@ class Relationship(BaseModel):
     properties: dict[str, str]
 
     @classmethod
-    def from_neo4j(cls, relationship: neo4j.graph.Relationship):
-        start_node, end_node = relationship.nodes
-        if start_node is None:
-            raise ValueError("relationship must have a start node")
-        if end_node is None:
-            raise ValueError("relationship must have an end node")
-
+    def from_edge(cls, edge: edges.Edge):
         return cls(
-            id=relationship.element_id,
-            type=relationship.type,
-            start_node=start_node.element_id,
-            end_node=end_node.element_id,
-            properties=dict(relationship.items()),
+            id=edge.element_id,
+            type=edge.typ,
+            start_node=edge.start_node,
+            end_node=edge.end_node,
+            properties=edge.properties,
         )
 
 
@@ -49,7 +45,7 @@ class Graph(BaseModel):
     relationships: list[Relationship]
 
     @classmethod
-    def from_neo4j(cls, graph: neo4j.graph.Graph):
-        nodes = [Node.from_neo4j(n) for n in graph.nodes]
-        relationships = [Relationship.from_neo4j(r) for r in graph.relationships]
+    def from_graph(cls, g: nx.MultiDiGraph):
+        nodes = [Node.from_node(n) for _, n in g.nodes.data("node")]
+        relationships = [Relationship.from_edge(e) for _, _, e in g.edges.data("edge")]
         return cls(nodes=nodes, relationships=relationships)

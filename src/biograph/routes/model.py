@@ -13,7 +13,8 @@ router = APIRouter(prefix="/model", tags=["models"])
 
 @router.get("/all")
 def models(db: DbDep) -> Graph:
-    return db.get_graph()
+    g = db.get_graph()
+    return Graph.from_graph(g)
 
 
 @router.get("/by-name/{model_name}")
@@ -21,7 +22,8 @@ def model_by_name(
     db: DbDep,
     model_name: str,
 ) -> Graph:
-    return db.get_model_by_name(model_name)
+    g = db.get_model_by_name(model_name)
+    return Graph.from_graph(g)
 
 
 @router.get("/by-node")
@@ -31,7 +33,8 @@ def model_by_node(
     property: str,
     value: str,
 ) -> Graph:
-    return db.get_model_by_node(label, property, value)
+    g = db.get_model_by_node(label, property, value)
+    return Graph.from_graph(g)
 
 
 @router.post("/upload")
