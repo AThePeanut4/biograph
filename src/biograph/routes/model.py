@@ -37,6 +37,21 @@ def model_by_node(
     return Graph.from_graph(g)
 
 
+@router.get("/by-node-id/{node_id}")
+def model_by_node_id(db: DbDep, node_id: str) -> Graph:
+    g = db.get_model_by_node_id(node_id)
+    return Graph.from_graph(g)
+
+
+@router.get("/by-tag/{tag}")
+def mode_by_tag(
+    db: DbDep,
+    tag: str,
+) -> Graph:
+    g = db.get_model_by_tag(tag)
+    return Graph.from_graph(g)
+
+
 @router.post("/upload")
 async def upload(db: DbDep, file: UploadFile, schema: UploadFile | None = None) -> None:
     b = await file.read()

@@ -195,6 +195,25 @@ class Database:
                 {"label": label, "property": property, "value": value},
             )
 
+    def get_model_by_node_id(self, node_id: str) -> nx.MultiDiGraph:
+        with self.session() as session:
+            return self.query_graph(
+                session,
+                "MATCH (n) WHERE elementId(n) = $id"
+                "MATCH (m{tag: n.tag}) "
+                "OPTIONAL MATCH (m)-[r]-() "
+                "RETURN m, r",
+                {"id": node_id},
+            )
+
+    def get_model_by_tag(self, tag: str) -> nx.MultiDiGraph:
+        with self.session() as session:
+            return self.query_graph(
+                session,
+                "MATCH (m{tag: $tag}) OPTIONAL MATCH (m)-[r]-() RETURN m, r",
+                {"tag": tag},
+            )
+
     def get_nodes(self) -> list[Node]:
         with self.session() as session:
             return self.query_nodes(session, "MATCH (n) RETURN n")
