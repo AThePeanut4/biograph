@@ -3,6 +3,8 @@ from typing import Any
 
 import neo4j.graph
 
+from .utils import get_subclasses
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +43,16 @@ class Edge:
             raise ValueError("relationship must have an end node")
 
         properties = dict(relationship.items())
+
+        for sub in get_subclasses(Edge):
+            if sub.__name__ == typ:
+                return sub(
+                    element_id,
+                    typ,
+                    start_node.element_id,
+                    end_node.element_id,
+                    properties,
+                )
 
         return Edge(
             element_id,

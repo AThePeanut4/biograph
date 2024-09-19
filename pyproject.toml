@@ -15,6 +15,7 @@ dependencies = [
     "pyyaml>=6.0.2",
     "uvicorn[standard]>=0.30.6",
     "networkx>=3.3",
+    "lxml>=5.3.0",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -33,3 +34,8 @@ excludes = ["conda-build", "neo4j-python-driver"]
 [tool.pdm.scripts]
 dev = "scripts/run_dev.py"
 prod = "scripts/run.py"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "types-lxml>=2024.9.16",
+]
