@@ -47,8 +47,11 @@ class Database:
     def close(self):
         self.driver.close()
 
-    def session(self, access_mode: str = neo4j.READ_ACCESS) -> neo4j.Session:
-        return self.driver.session(default_access_mode=access_mode)
+    def session(self, **kwargs) -> neo4j.Session:
+        return self.driver.session(default_access_mode=neo4j.READ_ACCESS, **kwargs)
+
+    def rw_session(self, **kwargs) -> neo4j.Session:
+        return self.driver.session(default_access_mode=neo4j.WRITE_ACCESS, **kwargs)
 
 
 def log_summary(summary: neo4j.ResultSummary):
@@ -296,6 +299,10 @@ def delete_relationship(session: neo4j.Session, edge: Edge):
         "MATCH ()-(r{uuid: $uuid})-() DELETE r",
         {"uuid": edge.uuid},
     )
+
+
+def delete_all(session: neo4j.Session):
+    query(session, "MATCH (n) DETACH DELETE n")
 
 
 def assign_uuids_by_tag(session: neo4j.Session, tag: str):

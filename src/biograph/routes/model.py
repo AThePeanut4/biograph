@@ -13,10 +13,16 @@ router = APIRouter(prefix="/model", tags=["models"])
 
 
 @router.get("/all")
-def models(db: database.DbDep) -> Graph:
+def all_models(db: database.DbDep) -> Graph:
     with db.session() as session:
         g = database.get_graph(session)
     return Graph.from_graph(g)
+
+
+@router.delete("/all")
+def clear_database(db: database.DbDep) -> None:
+    with db.rw_session() as session:
+        database.delete_all(session)
 
 
 @router.get("/by-id/{model_uuid}")
