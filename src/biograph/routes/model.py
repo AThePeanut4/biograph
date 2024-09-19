@@ -18,6 +18,16 @@ def models(db: database.DbDep) -> Graph:
     return Graph.from_graph(g)
 
 
+@router.get("/by-id/{model_uuid}")
+def model_by_uuid(
+    db: database.DbDep,
+    model_uuid: str,
+) -> Graph:
+    with db.session() as session:
+        g = database.get_model_by_uuid(session, model_uuid)
+    return Graph.from_graph(g)
+
+
 @router.get("/by-name/{model_name}")
 def model_by_name(
     db: database.DbDep,
@@ -40,10 +50,10 @@ def model_by_node(
     return Graph.from_graph(g)
 
 
-@router.get("/by-node-id/{node_id}")
-def model_by_node_id(db: database.DbDep, node_id: str) -> Graph:
+@router.get("/by-node-id/{node_uuid}")
+def model_by_node_uuid(db: database.DbDep, node_uuid: str) -> Graph:
     with db.session() as session:
-        g = database.get_model_by_node_id(session, node_id)
+        g = database.get_model_by_node_uuid(session, node_uuid)
     return Graph.from_graph(g)
 
 

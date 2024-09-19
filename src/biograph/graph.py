@@ -10,7 +10,7 @@ def neo4j_to_networkx(graph: neo4j.graph.Graph) -> nx.MultiDiGraph:
     for n in graph.nodes:
         node = Node.from_neo4j(n)
         ret.add_node(
-            node.element_id,
+            node.uuid,
             node=node,
         )
     for r in graph.relationships:
@@ -18,7 +18,7 @@ def neo4j_to_networkx(graph: neo4j.graph.Graph) -> nx.MultiDiGraph:
         ret.add_edge(
             edge.start_node,
             edge.end_node,
-            key=edge.element_id,
+            key=edge.uuid,
             edge=edge,
         )
     return ret

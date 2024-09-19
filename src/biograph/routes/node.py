@@ -12,8 +12,8 @@ def all_nodes(db: database.DbDep) -> list[Node]:
         return [Node.from_node(n) for n in database.get_nodes(session)]
 
 
-@router.get("/by-id/{node_id}")
-def node_by_id(db: database.DbDep, node_id: str) -> Node:
+@router.get("/by-id/{node_uuid}")
+def node_by_uuid(db: database.DbDep, node_id: str) -> Node:
     with db.session() as session:
-        n = database.get_node_by_id(session, node_id)
+        n = database.get_node_by_uuid(session, node_id)
     return Node.from_node(n)

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Edge:
-    element_id: str
+    uuid: str
 
     typ: str
     start_node: str
@@ -19,12 +19,12 @@ class Edge:
     def __init__(
         self,
         typ: str,
-        element_id: str,
+        uuid: str,
         start_node: str,
         end_node: str,
         properties: dict[str, str],
     ) -> None:
-        self.element_id = element_id
+        self.uuid = uuid
         self.typ = typ
         self.start_node = start_node
         self.end_node = end_node
@@ -32,36 +32,34 @@ class Edge:
 
     @staticmethod
     def from_neo4j(relationship: neo4j.graph.Relationship):
-        element_id = relationship.element_id
+        properties = dict(relationship.items())
+
+        if "uuid" not in properties:
+            raise ValueError(f"relationship {relationship.element_id} has no UUID")
+
+        uuid = properties.pop("uuid")
 
         typ = relationship.type
         typ_name = typ.casefold().replace("_", "")
 
         start_node, end_node = relationship.nodes
         if start_node is None:
-            raise ValueError("relationship must have a start node")
+            raise ValueError(f"relationship {uuid} has no start node")
         if end_node is None:
-            raise ValueError("relationship must have an end node")
+            raise ValueError(f"relationship {uuid} has no end node")
 
-        properties = dict(relationship.items())
+        start_node = start_node.get("uuid")
+        if start_node is None:
+            raise ValueError(f"relationship {uuid} start node has no UUID")
+        end_node = end_node.get("uuid")
+        if end_node is None:
+            raise ValueError(f"relationship {uuid} end node has no UUID")
 
         for sub in get_subclasses(Edge):
             if sub.__name__.casefold() == typ_name:
-                return sub(
-                    element_id,
-                    typ,
-                    start_node.element_id,
-                    end_node.element_id,
-                    properties,
-                )
+                return sub(uuid, typ, start_node, end_node, properties)
 
-        return Edge(
-            element_id,
-            typ,
-            start_node.element_id,
-            end_node.element_id,
-            properties,
-        )
+        return Edge(uuid, typ, start_node, end_node, properties)
 
 
 class HasCompartment(Edge):

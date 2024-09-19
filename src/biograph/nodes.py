@@ -17,7 +17,7 @@ ANNOTATION_NS = {
 
 
 class Node:
-    element_id: str
+    uuid: str
 
     label: str
     properties: dict[str, str]
@@ -29,8 +29,8 @@ class Node:
 
     identifiers: list[str]
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        self.element_id = element_id
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        self.uuid = uuid
         self.label = label
         self.properties = properties
 
@@ -55,31 +55,32 @@ class Node:
 
     @staticmethod
     def from_neo4j(node: neo4j.graph.Node) -> Node:
-        element_id = node.element_id
+        properties = dict(node.items())
+
+        if "uuid" not in properties:
+            raise ValueError(f"node {node.element_id} has no UUID")
+
+        uuid = properties.pop("uuid")
 
         labels = node.labels
         if len(labels) == 0:
-            logger.warning("node %s has no labels", node.element_id)
+            logger.warning("node %s has no labels", uuid)
             label = "Node"
         else:
             if len(labels) > 1:
-                logger.warning(
-                    "node %s has >1 labels (%d)", node.element_id, len(labels)
-                )
+                logger.warning("node %s has >1 labels (%d)", uuid, len(labels))
             label = next(iter(node.labels))
-
-        properties = dict(node.items())
 
         for sub in get_subclasses(Node):
             if sub.__name__ == label:
-                return sub(element_id, label, properties)
+                return sub(uuid, label, properties)
 
-        return Node(element_id, label, properties)
+        return Node(uuid, label, properties)
 
 
 class Model(Node):
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         if self.annotation is not None and self.metaid:
             for el in self.annotation.xpath(
@@ -93,8 +94,8 @@ class Model(Node):
 class Compartment(Node):
     size: float | None
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         size = properties.get("size")
         if size is not None:
@@ -110,8 +111,8 @@ class Species(Node):
 class Reaction(Node):
     reversible: bool | None
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         reversible = properties.get("reversible")
         if reversible is not None:
@@ -123,8 +124,8 @@ class Reaction(Node):
 class KineticLaw(Node):
     formula: str | None
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         self.formula = properties.get("formula")
 
@@ -132,8 +133,8 @@ class KineticLaw(Node):
 class Parameter(Node):
     value: str | None
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         self.value = properties.get("value")
 
@@ -148,8 +149,8 @@ class Unit(Node):
     multiplier: float | None
     scale: int | None
 
-    def __init__(self, element_id: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(element_id, label, properties)
+    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
+        super().__init__(uuid, label, properties)
 
         exponent = properties.get("exponent")
         if exponent is not None:

@@ -78,6 +78,7 @@ def sbml_to_neo4j(xml: str, schema: str | None):
 
         with driver.session(default_access_mode=neo4j.WRITE_ACCESS) as session:
             database.delete_dangling_nodes_by_tag(session, tag)
+            database.assign_uuids_by_tag(session, tag)
             database.remove_tag(session, tag)
     except Exception as e:
         logging.error("Error importing sbml into neo4j: %s", e)

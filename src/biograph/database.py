@@ -161,6 +161,17 @@ def get_graph(session: neo4j.Session) -> nx.MultiDiGraph:
     return query_graph(session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r")
 
 
+def get_model_by_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
+    return query_graph(
+        session,
+        "MATCH (n:Model {uuid: $uuid}) "
+        "CALL apoc.path.subgraphAll(n, {}) "
+        "YIELD nodes, relationships "
+        "RETURN nodes, relationships",
+        {"uuid": uuid},
+    )
+
+
 def get_model_by_name(session: neo4j.Session, name: str) -> nx.MultiDiGraph:
     return query_graph(
         session,
@@ -193,14 +204,14 @@ def get_model_by_node(
     )
 
 
-def get_model_by_node_id(session: neo4j.Session, node_id: str) -> nx.MultiDiGraph:
+def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
     return query_graph(
         session,
-        "MATCH (n) WHERE elementId(n) = $id "
+        "MATCH (n) WHERE n.uuid = $uuid "
         "CALL apoc.path.subgraphAll(n, {}) "
         "YIELD nodes, relationships "
         "RETURN nodes, relationships",
-        {"id": node_id},
+        {"uuid": uuid},
     )
 
 
@@ -216,11 +227,11 @@ def get_nodes(session: neo4j.Session) -> list[Node]:
     return query_nodes(session, "MATCH (n) RETURN n")
 
 
-def get_node_by_id(session: neo4j.Session, node_id: str) -> Node:
+def get_node_by_uuid(session: neo4j.Session, uuid: str) -> Node:
     return query_node(
         session,
-        "MATCH (n) WHERE elementId(n) = $id RETURN n",
-        {"id": node_id},
+        "MATCH (n) WHERE n.uuid = $uuid RETURN n",
+        {"uuid": uuid},
     )
 
 
@@ -228,12 +239,17 @@ def get_relationships(session: neo4j.Session) -> list[Edge]:
     return query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
 
-def get_relationship_by_id(session: neo4j.Session, relationship_id: str) -> Edge:
+def get_relationship_by_uuid(session: neo4j.Session, uuid: str) -> Edge:
     return query_relationship(
         session,
-        "MATCH ()-[r]-() WHERE elementId(n) = $id RETURN r",
-        {"id": relationship_id},
+        "MATCH ()-[r]-() WHERE n.uuid = $uuid RETURN r",
+        {"uuid": uuid},
     )
+
+
+def assign_uuids_by_tag(session: neo4j.Session, tag: str):
+    query(session, "MATCH (n{tag: $tag}) SET n.uuid = randomUUID()", {"tag": tag})
+    query(session, "MATCH ()-[r{tag: $tag}]-() SET r.uuid = randomUUID()", {"tag": tag})
 
 
 def delete_all_by_tag(session: neo4j.Session, tag: str):

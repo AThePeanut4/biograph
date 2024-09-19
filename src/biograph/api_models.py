@@ -16,7 +16,7 @@ class Node(BaseModel):
     @classmethod
     def from_node(cls, node: nodes.Node):
         return cls(
-            id=node.element_id,
+            id=node.uuid,
             label=node.label,
             properties=node.properties,
         )
@@ -32,7 +32,7 @@ class Relationship(BaseModel):
     @classmethod
     def from_edge(cls, edge: edges.Edge):
         return cls(
-            id=edge.element_id,
+            id=edge.uuid,
             type=edge.typ,
             start_node=edge.start_node,
             end_node=edge.end_node,
