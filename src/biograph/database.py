@@ -48,17 +48,22 @@ class Database:
         self.driver.close()
 
     def session(self) -> neo4j.Session:
-        return self.driver.session()
+        return self.driver.session(default_access_mode=neo4j.READ_ACCESS)
 
-    def log_summary(self, summary: neo4j.ResultSummary):
+    def rw_session(self) -> neo4j.Session:
+        return self.driver.session(default_access_mode=neo4j.WRITE_ACCESS)
+
+    @classmethod
+    def log_summary(cls, summary: neo4j.ResultSummary):
         logger.info(
             "Query `%s` completed in %d ms",
             summary.query,
             summary.result_available_after,
         )
 
+    @classmethod
     def query(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -67,12 +72,13 @@ class Database:
         values = result.data()
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return values
 
+    @classmethod
     def query_single(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -81,12 +87,13 @@ class Database:
         values = result.value()[0]
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return values
 
+    @classmethod
     def query_graph(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -95,12 +102,13 @@ class Database:
         g = result.graph()
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return graph.neo4j_to_networkx(g)
 
+    @classmethod
     def query_node(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -109,12 +117,13 @@ class Database:
         node = result.value()[0]
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return Node.from_neo4j(node)
 
+    @classmethod
     def query_nodes(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -123,12 +132,13 @@ class Database:
         nodes = result.value()
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return [Node.from_neo4j(n) for n in nodes]
 
+    @classmethod
     def query_relationship(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -137,12 +147,13 @@ class Database:
         node = result.value()[0]
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return Edge.from_neo4j(node)
 
+    @classmethod
     def query_relationships(
-        self,
+        cls,
         session: neo4j.Session,
         q: str,
         params: dict[str, typing.Any] | None = None,
@@ -151,92 +162,96 @@ class Database:
         nodes = result.value()
 
         summary = result.consume()
-        self.log_summary(summary)
+        cls.log_summary(summary)
 
         return [Edge.from_neo4j(n) for n in nodes]
 
-    def get_max_tag(self) -> int:
-        with self.session() as session:
-            ret = self.query_single(session, "MATCH (n: Model) RETURN max(n.tag)")
-            return int(ret or 0)
+    @classmethod
+    def get_max_tag(cls, session: neo4j.Session) -> int:
+        ret = cls.query_single(session, "MATCH (n: Model) RETURN max(n.tag)")
+        return int(ret or 0)
 
-    def get_graph(self) -> nx.MultiDiGraph:
-        with self.session() as session:
-            return self.query_graph(
-                session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r"
-            )
+    @classmethod
+    def get_graph(cls, session: neo4j.Session) -> nx.MultiDiGraph:
+        return cls.query_graph(
+            session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r"
+        )
 
-    def get_model_by_name(self, name: str) -> nx.MultiDiGraph:
-        with self.session() as session:
-            return self.query_graph(
-                session,
-                "MATCH (n:Model {name: $name}) "
-                "MATCH (m{tag: n.tag}) "
-                "OPTIONAL MATCH (m)-[r]-() "
-                "RETURN m, r",
-                {"name": name},
-            )
+    @classmethod
+    def get_model_by_name(cls, session: neo4j.Session, name: str) -> nx.MultiDiGraph:
+        return cls.query_graph(
+            session,
+            "MATCH (n:Model {name: $name}) "
+            "MATCH (m{tag: n.tag}) "
+            "OPTIONAL MATCH (m)-[r]-() "
+            "RETURN m, r",
+            {"name": name},
+        )
 
+    @classmethod
     def get_model_by_node(
-        self, label: str, property: str, value: str
+        cls, session: neo4j.Session, label: str, property: str, value: str
     ) -> nx.MultiDiGraph:
-        with self.session() as session:
-            if not label.isalnum():
-                raise ValueError("invalid label")
-            if not property.isalnum():
-                raise ValueError("invalid property")
+        if not label.isalnum():
+            raise ValueError("invalid label")
+        if not property.isalnum():
+            raise ValueError("invalid property")
 
-            return self.query_graph(
-                session,
-                f"MATCH (n:{label} {{{property}: $value}}) "
-                "MATCH (m{tag: n.tag}) "
-                "OPTIONAL MATCH (m)-[r]-() "
-                "RETURN m, r",
-                {"label": label, "property": property, "value": value},
-            )
+        return cls.query_graph(
+            session,
+            f"MATCH (n:{label} {{{property}: $value}}) "
+            "MATCH (m{tag: n.tag}) "
+            "OPTIONAL MATCH (m)-[r]-() "
+            "RETURN m, r",
+            {"label": label, "property": property, "value": value},
+        )
 
-    def get_model_by_node_id(self, node_id: str) -> nx.MultiDiGraph:
-        with self.session() as session:
-            return self.query_graph(
-                session,
-                "MATCH (n) WHERE elementId(n) = $id"
-                "MATCH (m{tag: n.tag}) "
-                "OPTIONAL MATCH (m)-[r]-() "
-                "RETURN m, r",
-                {"id": node_id},
-            )
+    @classmethod
+    def get_model_by_node_id(
+        cls, session: neo4j.Session, node_id: str
+    ) -> nx.MultiDiGraph:
+        return cls.query_graph(
+            session,
+            "MATCH (n) WHERE elementId(n) = $id"
+            "MATCH (m{tag: n.tag}) "
+            "OPTIONAL MATCH (m)-[r]-() "
+            "RETURN m, r",
+            {"id": node_id},
+        )
 
-    def get_model_by_tag(self, tag: str) -> nx.MultiDiGraph:
-        with self.session() as session:
-            return self.query_graph(
-                session,
-                "MATCH (m{tag: $tag}) OPTIONAL MATCH (m)-[r]-() RETURN m, r",
-                {"tag": tag},
-            )
+    @classmethod
+    def get_model_by_tag(cls, session: neo4j.Session, tag: str) -> nx.MultiDiGraph:
+        return cls.query_graph(
+            session,
+            "MATCH (m{tag: $tag}) OPTIONAL MATCH (m)-[r]-() RETURN m, r",
+            {"tag": tag},
+        )
 
-    def get_nodes(self) -> list[Node]:
-        with self.session() as session:
-            return self.query_nodes(session, "MATCH (n) RETURN n")
+    @classmethod
+    def get_nodes(cls, session: neo4j.Session) -> list[Node]:
+        return cls.query_nodes(session, "MATCH (n) RETURN n")
 
-    def get_node_by_id(self, node_id: str) -> Node:
-        with self.session() as session:
-            return self.query_node(
-                session,
-                "MATCH (n) WHERE elementId(n) = $id RETURN n",
-                {"id": node_id},
-            )
+    @classmethod
+    def get_node_by_id(cls, session: neo4j.Session, node_id: str) -> Node:
+        return cls.query_node(
+            session,
+            "MATCH (n) WHERE elementId(n) = $id RETURN n",
+            {"id": node_id},
+        )
 
-    def get_relationships(self) -> list[Edge]:
-        with self.session() as session:
-            return self.query_relationships(session, "MATCH ()-[r]-() RETURN r")
+    @classmethod
+    def get_relationships(cls, session: neo4j.Session) -> list[Edge]:
+        return cls.query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
-    def get_relationship_by_id(self, relationship_id: str) -> Edge:
-        with self.session() as session:
-            return self.query_relationship(
-                session,
-                "MATCH ()-[r]-() WHERE elementId(n) = $id RETURN r",
-                {"id": relationship_id},
-            )
+    @classmethod
+    def get_relationship_by_id(
+        cls, session: neo4j.Session, relationship_id: str
+    ) -> Edge:
+        return cls.query_relationship(
+            session,
+            "MATCH ()-[r]-() WHERE elementId(n) = $id RETURN r",
+            {"id": relationship_id},
+        )
 
 
 def get_db():

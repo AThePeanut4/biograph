@@ -13,7 +13,8 @@ router = APIRouter(prefix="/model", tags=["models"])
 
 @router.get("/all")
 def models(db: DbDep) -> Graph:
-    g = db.get_graph()
+    with db.session() as session:
+        g = db.get_graph(session)
     return Graph.from_graph(g)
 
 
@@ -22,7 +23,8 @@ def model_by_name(
     db: DbDep,
     model_name: str,
 ) -> Graph:
-    g = db.get_model_by_name(model_name)
+    with db.session() as session:
+        g = db.get_model_by_name(session, model_name)
     return Graph.from_graph(g)
 
 
@@ -33,13 +35,15 @@ def model_by_node(
     property: str,
     value: str,
 ) -> Graph:
-    g = db.get_model_by_node(label, property, value)
+    with db.session() as session:
+        g = db.get_model_by_node(session, label, property, value)
     return Graph.from_graph(g)
 
 
 @router.get("/by-node-id/{node_id}")
 def model_by_node_id(db: DbDep, node_id: str) -> Graph:
-    g = db.get_model_by_node_id(node_id)
+    with db.session() as session:
+        g = db.get_model_by_node_id(session, node_id)
     return Graph.from_graph(g)
 
 
@@ -48,7 +52,8 @@ def mode_by_tag(
     db: DbDep,
     tag: str,
 ) -> Graph:
-    g = db.get_model_by_tag(tag)
+    with db.session() as session:
+        g = db.get_model_by_tag(session, tag)
     return Graph.from_graph(g)
 
 
@@ -57,7 +62,8 @@ async def upload(db: DbDep, file: UploadFile, schema: UploadFile | None = None) 
     b = await file.read()
     xml = b.decode()
 
-    tag = db.get_max_tag() + 1
+    with db.session() as session:
+        tag = db.get_max_tag(session) + 1
 
     logger.info("Importing SBML, using tag %d", tag)
 

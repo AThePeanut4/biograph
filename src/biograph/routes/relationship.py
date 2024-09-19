@@ -8,10 +8,12 @@ router = APIRouter(prefix="/relationship", tags=["relationships"])
 
 @router.get("/all")
 def all_relationships(db: DbDep) -> list[Relationship]:
-    return [Relationship.from_edge(e) for e in db.get_relationships()]
+    with db.session() as session:
+        return [Relationship.from_edge(e) for e in db.get_relationships(session)]
 
 
 @router.get("/by-id/{relationship_id}")
 def relationship_by_id(db: DbDep, relationship_id: str) -> Relationship:
-    e = db.get_relationship_by_id(relationship_id)
+    with db.session() as session:
+        e = db.get_relationship_by_id(session, relationship_id)
     return Relationship.from_edge(e)
