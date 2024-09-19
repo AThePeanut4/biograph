@@ -4,6 +4,7 @@
     1. Move constants to the top of the file
   */
 
+  import { onMount } from "svelte";
   import * as d3 from "d3";
   const ENDPOINT = import.meta.env.VITE_ENDPOINT;
 
@@ -30,17 +31,22 @@
   // These are the properties of a selected node in a graph
   let properties = {};
 
+  onMount(() => {
+    loadModels();
+  });
+
   // --- Load Models ---
   async function loadModels() {
     if (modelsLoading) return;
     modelsLoading = true;
 
+    // Remove previous graph
     container.innerHTML = "";
 
     try {
       const res = await visualiseFromEndpoint(ENDPOINT + "/model/all");
     } catch (error) {
-      alert("There was an error loading the models. We recommend checking your internet connection, refreshing the page and trying again.");
+      networkError("The models failed to load");
       modelsLoading = false;
     }
   }
@@ -67,74 +73,100 @@
   let merging = false;
   let previewingMerge = false;
   let selectedNodes = [];
+  let similarity;
 
   function startSelecting() {
     merging = true;
   }
 
-  function previewMerge() {
+  async function previewMerge() {
+    if (selectedNodes.length < 2) {
+      alert("Please select at least two nodes to merge.");
+      return;
+    }
+
     merging = false;
     previewingMerge = true;
 
-    let selectedIDs = selectedNodes.map((node) => node.__data__.id);
+    // This and the similarity endpoint simply require a list of UUIDs
+    const body = { uuids: selectedNodes.map((node) => node.__data__.id) };
+    const request = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
 
-    // Hide all nodes that don't have an ID in the list
-    d3.selectAll(".node")
-      .filter((d) => !selectedIDs.includes(d.id))
-      .style("visibility", "hidden");
+    const res = await fetch(ENDPOINT + "/merge/nodes", request);
+    const data = await res.json();
 
-    // Hide all links that don't have an ID in the list
-    d3.selectAll(".link")
-      .filter((d) => !selectedIDs.includes(d.source) && !selectedIDs.includes(d.target))
-      .style("visibility", "hidden");
+    if (data) {
+      visualiseData(data as IGraph);
+      
+      const resSimilarity = await fetch(ENDPOINT + "/merge/similarity", request);
+      similarity = await resSimilarity.json();
+    } else {
+      networkError("Merging has failed");
+    }
   }
 
-  function acceptMerge() {
-    merging = false;
+  async function acceptMerge() {
+    previewingMerge = false;
 
-    for (const node of selectedNodes.slice(1)) {
-      const nodeID = node.__data__.id;
-
-      // This is necessary because the selectedNodes are just the circles
-      d3.selectAll(".node")
-        .filter((d) => d.id === nodeID)
-        .remove();
-
-      // Remove all links to or from these nodes
-      d3.selectAll(".link")
-        .filter((d) => d.source.id === nodeID || d.target.id === nodeID)
-        .remove();
-    }
-    // Only need to reset stroke width of the remaining node
-    selectedNodes[0].__data__.selected = false;
-    resetStrokeWidth([selectedNodes[0]])
+    // This time apply is true so the changes are pushed to the database
+    const body = { uuids: selectedNodes.map((node) => node.__data__.id), apply: true };
+    const request = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+    await fetch(ENDPOINT + "/merge/nodes", request);
 
     selectedNodes = [];
-
-    // TODO: Send request to server and reload models
+    // Load models to view update
+    loadModels();
   }
 
   function clearSelection() {
     merging = false;
-
-    // Reset all selected tags
-    for (const node of selectedNodes) {
-      node.__data__.selected = false;
-    }
-    // Reset stroke width
-    resetStrokeWidth(selectedNodes);
+    previewingMerge = false;
 
     selectedNodes = [];
+    loadModels();
   }
 
+  function networkError(beginning: String) {
+    alert(beginning + " due to a network error. We recommend checking your internet connection, refreshing the page and trying again.");
+  }
+
+  // --- Suggested Merges ---
+  let suggestingMerges = false;
+  let suggestions = [];
+  let suggestionIndex = 0;
+
+  async function suggestMerges() {
+    suggestingMerges = true;
+
+    const res = await fetch(ENDPOINT + "TODO", { method: "GET" });
+    const data = await res.json();
+
+    if (data) {
+      suggestions = data;
+      suggestionIndex = 0;
+    } else {
+      networkError("Suggesting merges has failed")
+    }
+  }
+
+  function nextSuggestion() {
+  }
+
+  function acceptSuggestion() {
+  }
+
+  function endSuggestions() {
+  }
+
+  // --- Visualisation ---
   function resetStrokeWidth(circles) {
     for (const circle of circles) {
       let selected = circle.__data__.selected;
+      // Larger stroke width for selected nodes
       d3.select(circle).attr("stroke-width", selected ? 3 : 1.5);
     }
   }
 
-  // --- Visualisation ---
   function visualiseData(data: IGraph) {
     const links = [];
 
@@ -146,18 +178,23 @@
     visualise(container.offsetWidth, container.offsetHeight, data.nodes, links);
   }
 
-  function visualise(width: number, height: number, nodes: INode[], links: IRelationship[]) {
+  // links type often changes
+  function visualise(width: number, height: number, nodes: INode[], links: any[]) {
     modelsLoading = false;
 
+    // Create the primary svg and container elements
     let svg = d3.create("svg");
     let g = svg.append("g");
 
+    // On pans or zooms, apply the transform change to the main container
     svg.call(d3.zoom().on("zoom", (event) => {
       g.attr("transform", event.transform);
     }));
 
+    // Create the container with the given nodes, links and force constants
     const simulation = d3
       .forceSimulation(nodes)
+      // Keep linked nodes together
       .force(
         "link",
         d3
@@ -165,11 +202,14 @@
           .id((d) => d.id)
           .distance(100),
       )
+      // Repel nodes away from each other
       .force("charge", d3.forceManyBody().strength(-800))
+      // Push nodes towards the center
       .force("x", d3.forceX())
       .force("y", d3.forceY())
       .on("tick", ticked);
     
+      // (0, 0) is the center of the svg
       svg
         .attr("viewBox", [-width / 2, -height / 2, width, height])
         .attr("style", "max-width: 100%; height: auto;");
@@ -197,6 +237,7 @@
       .join("g")
       .attr("class", "node");
 
+    // Add the circle and text to each node element
     node
       .append("circle")
       .attr("r", 25)
@@ -215,6 +256,7 @@
       // Allow properties to be viewed in the inspector
       properties = data_object.properties;
 
+      // Toggle selection
       if (merging) {
         data_object.selected = !data_object.selected;
         if (data_object.selected) {
@@ -263,6 +305,7 @@
       event.subject.fy = null;
     }
 
+    // Remove previous graph and add graph to the DOM
     container.innerHTML = "";
     container.appendChild(svg.node()!);
   }
@@ -279,6 +322,7 @@
     const files = uploadFilesInput.files;
     if (!files) return;
 
+    // Simply upload each file one at a time as form data
     const endpoint = ENDPOINT + "/model/upload";
     for (const file of files) {
       const formData = new FormData();
@@ -288,6 +332,9 @@
 
     // Clears the file list
     uploadFilesInput.value = "";
+
+    uploadModelModal.close();
+    loadModels();
   }
 
   // --- Change Schema ---
@@ -309,6 +356,14 @@
 
     // Clears the file list
     changeSchemaInput.value = "";
+
+    changeSchemaModal.close();
+  }
+
+  // --- Clear Models ---
+  async function clearModels() {
+    await fetch(ENDPOINT + "/model/all", { method: "DELETE" });
+    container.innerHTML = "";
   }
 
   // --- Query by Name ---
@@ -346,6 +401,7 @@
     const paramNames = ["label", "property", "value"];
     const paramValues = [queryLabel, queryProperty, queryValue];
 
+    // Add all the parameters with the proper formatting
     let params = new URLSearchParams();
     for (let i = 0; i < 3; i++) {
       if (paramValues[i]) {
@@ -380,7 +436,7 @@
 <div class="flex flex h-full">
   <!-- Left Drawer -->
   <div class="bg-base-200 h-full w-2/6 space-y-4 p-4">
-    {#if !merging}
+    {#if !merging && !previewingMerge && !suggestingMerges}
     <div class="bg-base-100 collapse">
       <input type="radio" name="my-accordion-1" checked="checked" />
       <div class="collapse-title text-xl font-medium">Loading</div>
@@ -426,6 +482,13 @@
             <button class="btn" on:click={changeSchema}>Upload</button>
           </div>
         </dialog>
+      </div>
+    </div>
+    <div class="bg-base-100 collapse">
+      <input type="radio" name="my-accordion-1" />
+      <div class="collapse-title text-xl font-medium">Deletion</div>
+      <div class="collapse-content flex flex-col">
+        <button class="btn" on:click={clearModels}>Clear Models</button>
       </div>
     </div>
     <div class="bg-base-100 collapse">
@@ -504,15 +567,24 @@
       <input type="radio" name="my-accordion-1" />
       <div class="collapse-title text-xl font-medium">Merging</div>
       <div class="collapse-content space-y-4 flex flex-col">
-        {#if !merging && !previewingMerge}
-        <button class="btn" on:click={startSelecting}>Start Selection</button>
+        {#if !merging && !previewingMerge && !suggestingMerges}
+        <button class="btn" on:click={startSelecting}>Start Merge</button>
+        <button class="btn" on:click={suggestMerges}>Suggest Merges</button>
         {:else}
-          {#if !previewingMerge}
-            <button class="btn" on:click={previewMerge}>Preview Merge</button>
+          {#if !suggestingMerges}
+            {#if !previewingMerge}
+              <p>Click on a node to select it for merging.</p>
+              <button class="btn" on:click={previewMerge}>Preview Merge</button>
+            {:else}
+              {#if similarity}
+                <p>Similarity: {similarity}</p>
+              {/if}
+              <button class="btn" on:click={acceptMerge}>Accept Merge</button>
+            {/if}
+            <button class="btn" on:click={clearSelection}>Reset</button>
           {:else}
-            <button class="btn" on:click={acceptMerge}>Accept Merge</button>
+            <p>Loading...</p>
           {/if}
-          <button class="btn" on:click={clearSelection}>Reset</button>
         {/if}
       </div>
     </div>
