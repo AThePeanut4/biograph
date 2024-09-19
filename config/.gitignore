@@ -1,2 +1,4 @@
 *.yml
 !*.example.yml
+*.json
+!*.example.json

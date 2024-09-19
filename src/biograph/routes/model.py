@@ -4,6 +4,7 @@ from fastapi import APIRouter, UploadFile
 
 from .. import database
 from ..api_models import Graph
+from ..neo4jsbml import Config as Neo4jSbmlConfig
 from ..neo4jsbml import sbml_to_neo4j
 
 logger = logging.getLogger(__name__)
@@ -81,3 +82,16 @@ async def upload_sbml(file: UploadFile, arrows_json: UploadFile | None = None) -
         schema = None
 
     sbml_to_neo4j(xml, schema)
+
+
+@router.post("/upload-schema")
+async def upload_schema(file: UploadFile) -> None:
+    cfg = Neo4jSbmlConfig.get()
+
+    b = await file.read()
+    json = b.decode()
+
+    logger.info("Updating schema")
+
+    with open(cfg.schema_path, "w") as f:
+        f.write(json)

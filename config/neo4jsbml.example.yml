@@ -1,2 +1,2 @@
 # path to the schema file created using https://arrows.app
-schema_path: schema.json
+schema_path: config/schema.json
