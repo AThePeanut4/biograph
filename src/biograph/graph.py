@@ -8,7 +8,7 @@ import networkx as nx
 
 from . import database
 from .edges import Edge
-from .nodes import Model, Node
+from .nodes import Node
 
 logger = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ def merge_nodes(
 
     dst_uuid = uuids[0]
     dst = cast(Node, graph.nodes[dst_uuid]["node"])
-    properties = dst.properties.copy()
+    node_props = dst.properties.copy()
 
     for src_uuid in uuids[1:]:
         src = cast(Node, graph.nodes[src_uuid]["node"])
@@ -155,7 +155,27 @@ def merge_nodes(
         for edges in graph.succ[src_uuid].values():
             for edgedict in edges.values():
                 edge = cast(Edge, edgedict["edge"])
-                new_edge = edge.copy(start_node=dst.uuid)
+
+                # if an edge with the same type already exists on dst,
+                # update that rather than creating a new edge
+                existing_edge = None
+                for _, e in graph.succ[dst_uuid].get(edge.end_node, {}).items():
+                    ee = cast(Edge, e["edge"])
+                    if ee.typ == edge.typ:
+                        existing_edge = ee
+                        break
+
+                if existing_edge is not None:
+                    edge_props = existing_edge.properties.copy()
+                    # merge properties without overwriting
+                    for k, v in edge.properties.items():
+                        if k not in edge_props:
+                            edge_props[k] = v
+
+                    new_edge = existing_edge.copy(properties=edge_props)
+                else:
+                    new_edge = edge.copy(start_node=dst_uuid)
+
                 graph.add_edge(
                     new_edge.start_node,
                     new_edge.end_node,
@@ -164,10 +184,31 @@ def merge_nodes(
                 )
                 if session is not None:
                     database.merge_relationship(session, new_edge)
+
         for edges in graph.pred[src_uuid].values():
             for edgedict in edges.values():
                 edge = cast(Edge, edgedict["edge"])
-                new_edge = edge.copy(end_node=dst.uuid)
+
+                # if an edge with the same type already exists on dst,
+                # update that rather than creating a new edge
+                existing_edge = None
+                for _, e in graph.pred[dst_uuid].get(edge.start_node, {}).items():
+                    ee = cast(Edge, e["edge"])
+                    if ee.typ == edge.typ:
+                        existing_edge = ee
+                        break
+
+                if existing_edge is not None:
+                    edge_props = existing_edge.properties.copy()
+                    # merge properties without overwriting
+                    for k, v in edge.properties.items():
+                        if k not in edge_props:
+                            edge_props[k] = v
+
+                    new_edge = existing_edge.copy(properties=edge_props)
+                else:
+                    new_edge = edge.copy(end_node=dst_uuid)
+
                 graph.add_edge(
                     new_edge.start_node,
                     new_edge.end_node,
@@ -179,8 +220,8 @@ def merge_nodes(
 
         # merge properties without overwriting
         for k, v in src.properties.items():
-            if k not in properties:
-                properties[k] = v
+            if k not in node_props:
+                node_props[k] = v
 
         # remove src
         graph.remove_node(src_uuid)
@@ -188,7 +229,7 @@ def merge_nodes(
             database.delete_node(session, src)
 
     # update node object in graph
-    new_dst = dst.copy(properties=properties)
+    new_dst = dst.copy(properties=node_props)
     graph.nodes[dst_uuid]["node"] = new_dst
     if session is not None:
         database.merge_node(session, new_dst)
