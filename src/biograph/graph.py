@@ -159,6 +159,8 @@ def merge_nodes(
                     key=new_edge.uuid,
                     edge=new_edge,
                 )
+                if session is not None:
+                    database.merge_relationship(session, new_edge)
         for edges in graph.pred[src_uuid].values():
             for edgedict in edges.values():
                 edge = cast(Edge, edgedict["edge"])
@@ -169,6 +171,8 @@ def merge_nodes(
                     key=new_edge.uuid,
                     edge=new_edge,
                 )
+                if session is not None:
+                    database.merge_relationship(session, new_edge)
 
         # merge properties without overwriting
         for k, v in src.properties.items():
@@ -177,9 +181,13 @@ def merge_nodes(
 
         # remove src
         graph.remove_node(src_uuid)
+        if session is not None:
+            database.delete_node(session, src)
 
     # update node object in graph
     new_dst = dst.copy(properties=properties)
     graph.nodes[dst_uuid]["node"] = new_dst
+    if session is not None:
+        database.merge_node(session, new_dst)
 
     return graph

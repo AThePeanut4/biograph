@@ -240,6 +240,27 @@ def get_node(session: neo4j.Session, uuid: str) -> Node:
     )
 
 
+def merge_node(session: neo4j.Session, node: Node):
+    uuid = node.uuid
+    props = node.properties
+
+    query(
+        session,
+        f"MERGE (n:{node.label} {{uuid: $uuid}}) "
+        "ON CREATE SET n += $props "
+        "ON MATCH SET n += $props",
+        {"uuid": uuid, "props": props},
+    )
+
+
+def delete_node(session: neo4j.Session, node: Node):
+    query(
+        session,
+        "MATCH (n {uuid: $uuid}) DETACH DELETE n",
+        {"uuid": node.uuid},
+    )
+
+
 def get_relationships(session: neo4j.Session) -> list[Edge]:
     return query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
@@ -249,6 +270,31 @@ def get_relationship(session: neo4j.Session, uuid: str) -> Edge:
         session,
         "MATCH ()-[r]-() WHERE n.uuid = $uuid RETURN r",
         {"uuid": uuid},
+    )
+
+
+def merge_relationship(session: neo4j.Session, edge: Edge):
+    start = edge.start_node
+    end = edge.end_node
+    uuid = edge.uuid
+    props = edge.properties
+
+    query(
+        session,
+        "MATCH (start{uuid: $start}) "
+        "MATCH (end{uuid: $end}) "
+        f"MERGE (start)-[r:{edge.typ} {{uuid: $uuid}}]->(end) "
+        "ON CREATE SET r += $props "
+        "ON MATCH SET r += $props",
+        {"start": start, "end": end, "uuid": uuid, "props": props},
+    )
+
+
+def delete_relationship(session: neo4j.Session, edge: Edge):
+    query(
+        session,
+        "MATCH ()-(r{uuid: $uuid})-() DELETE r",
+        {"uuid": edge.uuid},
     )
 
 
