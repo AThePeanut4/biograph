@@ -22,7 +22,7 @@ def merge_nodes(db: database.DbDep, input: MergeNodesInput) -> Graph:
     else:
         session = db.session()
     with session:
-        g = database.get_nodes_with_neighbours(session, input.uuids)
+        g = database.get_subgraphs_by_uuids(session, input.uuids)
         graph.merge_nodes(g, input.uuids, session if input.apply else None)
 
     return Graph.from_graph(g)
@@ -31,7 +31,7 @@ def merge_nodes(db: database.DbDep, input: MergeNodesInput) -> Graph:
 @router.post("/similarity")
 def calculate_similarity(db: database.DbDep, input: CalculateSimilarityInput) -> int:
     with db.session() as session:
-        g = database.get_nodes_with_neighbours(session, input.uuids)
+        g = database.get_subgraphs_by_uuids(session, input.uuids)
     return graph.calc_similarity(g, input.uuids)
 
 

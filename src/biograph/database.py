@@ -218,9 +218,7 @@ def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph
     )
 
 
-def get_nodes_with_neighbours(
-    session: neo4j.Session, uuids: list[str]
-) -> nx.MultiDiGraph:
+def get_subgraphs_by_uuids(session: neo4j.Session, uuids: list[str]) -> nx.MultiDiGraph:
     return query_graph(
         session,
         "UNWIND $uuids AS uuid "
@@ -229,6 +227,20 @@ def get_nodes_with_neighbours(
         "RETURN n, r, m",
         {"uuids": uuids},
     )
+
+
+def get_subgraphs_by_identifier(
+    session: neo4j.Session, identifier: str
+) -> nx.MultiDiGraph:
+    graph = get_graph(session)
+
+    uuids = []
+    for n, node in graph.nodes.data("node"):
+        node = cast(Node, node)
+        if identifier in node.identifiers:
+            uuids.append(n)
+
+    return get_subgraphs_by_uuids(session, uuids)
 
 
 def get_nodes(session: neo4j.Session) -> list[Node]:
