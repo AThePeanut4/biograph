@@ -69,10 +69,22 @@
   let merging = false;
   let previewingMerge = false;
   let selectedNodes = [];
+  // This is the similarity of the selected nodes
   let similarity;
 
   function startSelecting() {
     merging = true;
+  }
+
+  async function updateSimilarity(request) {
+    // The request can be precalculated and passed in, otherwise we need all the UUIDs
+    if (!request) {
+      const body = { uuids: selectedNodes.map((node) => node.__data__.id) };
+      request = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+    }
+
+    const resSimilarity = await fetch(ENDPOINT + "/merge/similarity", request);
+    similarity = await resSimilarity.json();
   }
 
   async function previewMerge() {
@@ -94,8 +106,7 @@
     if (data) {
       visualiseData(data as IGraph);
       
-      const resSimilarity = await fetch(ENDPOINT + "/merge/similarity", request);
-      similarity = await resSimilarity.json();
+      updateSimilarity(request)
     } else {
       networkError("Merging has failed");
     }
@@ -133,6 +144,7 @@
   async function showSuggestMergesModal() {
     const res = await fetch(ENDPOINT + "/merge/identifier-frequency", { method: "GET" });
     const identifiers = await res.json();
+    // Only take the first 6 suggestions
     mergeSuggestions = identifiers.slice(0, 6);
 
     suggestMergesModal.showModal();
@@ -141,6 +153,8 @@
   async function filterSuggestion(i) {
     suggestMergesModal.close();
 
+    // Get the subgraph induced by that identifier and visualise it
+    // We encodeURIComponent because the identifier can contain ?, =, /, etc.
     const q = `?identifier=${encodeURIComponent(mergeSuggestions[i].identifier)}`;
     const res = await fetch(ENDPOINT + "/subgraph/by-identifier" + q, { method: "GET" })
     const data = await res.json();
@@ -265,6 +279,11 @@
           selectedNodes.splice(selectedNodes.indexOf(event.target), 1);
         }
         resetStrokeWidth([event.target]);
+
+        // If multiple nodes are selected, we can calculate the similarity between them
+        if (selectedNodes.length > 1) {
+          updateSimilarity(null);
+        }
       }
     }
 
@@ -589,13 +608,13 @@
           </div>
         </dialog>
         {:else}
+          {#if similarity}
+            <p>Similarity: {similarity}</p>
+          {/if}
           {#if !previewingMerge}
             <p>Click on a node to select it for merging.</p>
             <button class="btn" on:click={previewMerge}>Preview Merge</button>
           {:else}
-            {#if similarity}
-              <p>Similarity: {similarity}</p>
-            {/if}
             <button class="btn" on:click={acceptMerge}>Accept Merge</button>
           {/if}
           <button class="btn" on:click={clearSelection}>Reset</button>
