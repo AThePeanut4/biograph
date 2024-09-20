@@ -14,6 +14,7 @@ from .routes import subgraph as subgraph_routes
 logger = logging.getLogger(__name__)
 
 
+# main api object
 api = FastAPI()
 
 api.add_middleware(GZipMiddleware)

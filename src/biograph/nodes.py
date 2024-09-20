@@ -10,6 +10,10 @@ from .utils import get_subclasses
 
 logger = logging.getLogger(__name__)
 
+##################
+## Node classes ##
+##################
+
 ANNOTATION_NS = {
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "bqbiol": "http://biomodels.net/biology-qualifiers/",
@@ -85,6 +89,7 @@ class Node:
 
     @staticmethod
     def from_neo4j(node: neo4j.graph.Node) -> Node:
+        """Build a Node from a neo4j Node - will create the appropriate subclass corresponding to the node's label"""
         properties = dict(node.items())
 
         if "uuid" not in properties:

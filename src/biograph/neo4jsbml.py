@@ -22,6 +22,8 @@ class Config(BaseModel):
         return config.get(cls, "neo4jsbml")
 
 
+# this is mostly copied from neo4jsbml, but edited
+# to allow passing in the sbml model as a string
 def sbml_to_neo4j(xml: str, schema: str | None):
     cfg = Config.get()
     db_cfg = database.Config.get()
@@ -45,6 +47,8 @@ def sbml_to_neo4j(xml: str, schema: str | None):
     if errors > 0:
         raise ValueError("SBML parse error")
 
+    # use a random tag to prevent neo4jsbml from auto-merging nodes
+    # will remove the tag from all nodes and edges after import is done
     tag = str(uuid.uuid4())
 
     sbm = sbml.SbmlToNeo4j(tag, document=doc)

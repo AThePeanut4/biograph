@@ -9,4 +9,5 @@ def _get_subclasses[T: type](cls: T) -> Generator[T, None, None]:
 
 
 def get_subclasses[T: type](cls: T) -> list[T]:
+    """Get a list of all subclasses of cls"""
     return list(_get_subclasses(cls))

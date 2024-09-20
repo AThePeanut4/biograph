@@ -3,6 +3,10 @@ from fastapi import APIRouter
 from .. import database
 from ..api_models import Relationship
 
+##############################
+## /relationship API routes ##
+##############################
+
 router = APIRouter(prefix="/relationship", tags=["relationships"])
 
 

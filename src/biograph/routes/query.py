@@ -8,6 +8,10 @@ from ..api_models import Graph, Node, Relationship
 
 logger = logging.getLogger(__name__)
 
+#######################
+## /query API routes ##
+#######################
+
 router = APIRouter(prefix="/query", tags=["queries"])
 
 

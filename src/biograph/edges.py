@@ -7,6 +7,10 @@ from .utils import get_subclasses
 
 logger = logging.getLogger(__name__)
 
+##################
+## Edge classes ##
+##################
+
 
 class Edge:
     uuid: str
@@ -54,6 +58,7 @@ class Edge:
 
     @staticmethod
     def from_neo4j(relationship: neo4j.graph.Relationship):
+        """Build a Relationship from a neo4j Relationship - will create the appropriate subclass corresponding to the edge's label"""
         properties = dict(relationship.items())
 
         if "uuid" not in properties:

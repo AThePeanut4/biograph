@@ -3,6 +3,10 @@ from fastapi import APIRouter
 from .. import database
 from ..api_models import Graph
 
+##########################
+## /subgraph API routes ##
+##########################
+
 router = APIRouter(prefix="/subgraph", tags=["subgraph"])
 
 

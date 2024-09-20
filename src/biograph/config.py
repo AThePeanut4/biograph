@@ -5,6 +5,7 @@ _cache = {}
 
 
 def get[T: BaseModel](cls: type[T], name: str) -> T:
+    """Get the config object at config/{name}.yml"""
     if name in _cache:
         return _cache[name]
 

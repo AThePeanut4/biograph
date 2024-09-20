@@ -9,6 +9,10 @@ from ..neo4jsbml import sbml_to_neo4j
 
 logger = logging.getLogger(__name__)
 
+#######################
+## /model API routes ##
+#######################
+
 router = APIRouter(prefix="/model", tags=["models"])
 
 

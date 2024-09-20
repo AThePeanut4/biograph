@@ -7,6 +7,12 @@ from . import nodes, edges
 
 logger = logging.getLogger(__name__)
 
+################
+## API models ##
+################
+
+# these are the models for the data sent/received by the FastAPI API handlers
+
 
 class Node(BaseModel):
     id: str

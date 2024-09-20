@@ -12,6 +12,10 @@ from ..api_models import (
 
 logger = logging.getLogger(__name__)
 
+#######################
+## /merge API routes ##
+#######################
+
 router = APIRouter(prefix="/merge", tags=["merge"])
 
 

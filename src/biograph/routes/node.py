@@ -3,6 +3,10 @@ from fastapi import APIRouter
 from .. import database
 from ..api_models import Node
 
+######################
+## /node API routes ##
+######################
+
 router = APIRouter(prefix="/node", tags=["nodes"])
 
 

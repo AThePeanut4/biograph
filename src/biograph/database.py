@@ -26,6 +26,8 @@ class Config(BaseModel):
 
 
 class Database:
+    """Represents a database connection"""
+
     def __init__(self, cfg: Config):
         self.driver = neo4j.GraphDatabase.driver(
             cfg.uri,
@@ -67,6 +69,7 @@ def query(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> list[Any]:
+    """Execute a query returning arbitrary data"""
     result = session.run(cast(LiteralString, q), params)
     values = result.data()
 
@@ -81,6 +84,7 @@ def query_single(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> Any:
+    """Execute a query returning one object"""
     result = session.run(cast(LiteralString, q), params)
     values = result.value()[0]
 
@@ -95,6 +99,7 @@ def query_graph(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> nx.MultiDiGraph:
+    """Execute a query returning a graph"""
     result = session.run(cast(LiteralString, q), params)
     g = result.graph()
 
@@ -109,6 +114,7 @@ def query_node(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> Node:
+    """Execute a query returning a node"""
     result = session.run(cast(LiteralString, q), params)
     node = result.value()[0]
 
@@ -123,6 +129,7 @@ def query_nodes(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> list[Node]:
+    """Execute a query returning multiple nodes"""
     result = session.run(cast(LiteralString, q), params)
     nodes = result.value()
 
@@ -137,6 +144,7 @@ def query_relationship(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> Edge:
+    """Execute a query returning a relationship"""
     result = session.run(cast(LiteralString, q), params)
     node = result.value()[0]
 
@@ -151,6 +159,7 @@ def query_relationships(
     q: str,
     params: dict[str, typing.Any] | None = None,
 ) -> list[Edge]:
+    """Execute a query returning multiple relationships"""
     result = session.run(cast(LiteralString, q), params)
     nodes = result.value()
 
@@ -161,10 +170,12 @@ def query_relationships(
 
 
 def get_graph(session: neo4j.Session) -> nx.MultiDiGraph:
+    """Return all nodes and relationships in the database"""
     return query_graph(session, "MATCH (n) OPTIONAL MATCH (n)-[r]-() RETURN n, r")
 
 
 def get_model(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
+    """Return the entire model specified by the given uuid"""
     return query_graph(
         session,
         "MATCH (n:Model {uuid: $uuid}) "
@@ -176,6 +187,7 @@ def get_model(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
 
 
 def get_model_by_name(session: neo4j.Session, name: str) -> nx.MultiDiGraph:
+    """Return all models with the given name"""
     return query_graph(
         session,
         "MATCH (n:Model {name: $name}) "
@@ -192,6 +204,7 @@ def get_model_by_node(
     property: str,
     value: str,
 ) -> nx.MultiDiGraph:
+    """Return all models containing a node with the given attributes"""
     if not label.isalnum():
         raise ValueError("invalid label")
     if not property.isalnum():
@@ -208,6 +221,7 @@ def get_model_by_node(
 
 
 def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph:
+    """Return all models containing the node with the given uuid"""
     return query_graph(
         session,
         "MATCH (n) WHERE n.uuid = $uuid "
@@ -219,6 +233,7 @@ def get_model_by_node_uuid(session: neo4j.Session, uuid: str) -> nx.MultiDiGraph
 
 
 def get_subgraphs_by_uuids(session: neo4j.Session, uuids: list[str]) -> nx.MultiDiGraph:
+    """Return the nodes with the given uuids and their immediate neighbours"""
     return query_graph(
         session,
         "UNWIND $uuids AS uuid "
@@ -232,6 +247,7 @@ def get_subgraphs_by_uuids(session: neo4j.Session, uuids: list[str]) -> nx.Multi
 def get_subgraphs_by_identifier(
     session: neo4j.Session, identifier: str
 ) -> nx.MultiDiGraph:
+    """Return all nodes with the given identifier and their immediate neighbours"""
     graph = get_graph(session)
 
     uuids = []
@@ -244,10 +260,12 @@ def get_subgraphs_by_identifier(
 
 
 def get_nodes(session: neo4j.Session) -> list[Node]:
+    """Return all nodes in the database"""
     return query_nodes(session, "MATCH (n) RETURN n")
 
 
 def get_node(session: neo4j.Session, uuid: str) -> Node:
+    """Return the node with the given uuid"""
     return query_node(
         session,
         "MATCH (n) WHERE n.uuid = $uuid RETURN n",
@@ -256,6 +274,7 @@ def get_node(session: neo4j.Session, uuid: str) -> Node:
 
 
 def merge_node(session: neo4j.Session, node: Node):
+    """Create or update the given node"""
     uuid = node.uuid
     props = node.properties
 
@@ -269,6 +288,7 @@ def merge_node(session: neo4j.Session, node: Node):
 
 
 def delete_node(session: neo4j.Session, node: Node):
+    """Delete the given node"""
     query(
         session,
         "MATCH (n {uuid: $uuid}) DETACH DELETE n",
@@ -277,10 +297,12 @@ def delete_node(session: neo4j.Session, node: Node):
 
 
 def get_relationships(session: neo4j.Session) -> list[Edge]:
+    """Return all relationships in the database"""
     return query_relationships(session, "MATCH ()-[r]-() RETURN r")
 
 
 def get_relationship(session: neo4j.Session, uuid: str) -> Edge:
+    """Return the relationship with the given uuid"""
     return query_relationship(
         session,
         "MATCH ()-[r]-() WHERE n.uuid = $uuid RETURN r",
@@ -289,6 +311,7 @@ def get_relationship(session: neo4j.Session, uuid: str) -> Edge:
 
 
 def merge_relationship(session: neo4j.Session, edge: Edge):
+    """Create or update the given relationship"""
     start = edge.start_node
     end = edge.end_node
     uuid = edge.uuid
@@ -306,6 +329,7 @@ def merge_relationship(session: neo4j.Session, edge: Edge):
 
 
 def delete_relationship(session: neo4j.Session, edge: Edge):
+    """Delete the given relationship"""
     query(
         session,
         "MATCH ()-(r{uuid: $uuid})-() DELETE r",
@@ -314,25 +338,30 @@ def delete_relationship(session: neo4j.Session, edge: Edge):
 
 
 def delete_all(session: neo4j.Session):
+    """Delete all nodes and relationships in the database"""
     query(session, "MATCH (n) DETACH DELETE n")
 
 
 def assign_uuids_by_tag(session: neo4j.Session, tag: str):
+    """Assign random uuids to all nodes with the given tag"""
     query(session, "MATCH (n{tag: $tag}) SET n.uuid = randomUUID()", {"tag": tag})
     query(session, "MATCH ()-[r{tag: $tag}]-() SET r.uuid = randomUUID()", {"tag": tag})
 
 
 def delete_all_by_tag(session: neo4j.Session, tag: str):
+    """Delete all nodes and relationships with the given tag"""
     query(session, "MATCH (n{tag: $tag}) DETACH DELETE n", {"tag": tag})
     query(session, "MATCH ()-[r{tag: $tag}]-() DELETE r", {"tag": tag})
 
 
 def remove_tag(session: neo4j.Session, tag: str):
+    """Remove the given tag from all nodes and relationships that have it"""
     query(session, "MATCH (n{tag: $tag}) REMOVE n.tag", {"tag": tag})
     query(session, "MATCH ()-[r{tag: $tag}]-() REMOVE r.tag", {"tag": tag})
 
 
 def delete_dangling_nodes_by_tag(session: neo4j.Session, tag: str):
+    """Remove all unreachable nodes with the given tag"""
     query(
         session,
         "MATCH (n{tag: $tag}) WHERE NOT EXISTS { (m:Model)-[*]-(n) } DETACH DELETE n",
@@ -347,4 +376,5 @@ def get_db():
         yield db
 
 
+# FastAPI dependency
 DbDep = Annotated[Database, Depends(get_db)]

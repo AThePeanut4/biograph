@@ -13,7 +13,13 @@ from .nodes import Node
 logger = logging.getLogger(__name__)
 
 
+################################
+## graph manipulation methods ##
+################################
+
+
 def neo4j_to_networkx(graph: neo4j.graph.Graph) -> nx.MultiDiGraph:
+    """Convert a neo4j Graph object to a networkx Graph"""
     ret = nx.MultiDiGraph()
     for n in graph.nodes:
         node = Node.from_neo4j(n)
@@ -33,6 +39,7 @@ def neo4j_to_networkx(graph: neo4j.graph.Graph) -> nx.MultiDiGraph:
 
 
 def _calc_similarity(graph: nx.MultiDiGraph, a: str, b: str) -> float:
+    """Calculate a similarity score out of 100 between a and b"""
     a_succ: dict[str, list[str]] = {}
     for nbr, edges in graph.succ[a].items():
         nbr_node = cast(Node, graph.nodes[nbr]["node"])
@@ -123,6 +130,7 @@ def calc_similarity(
     graph: nx.MultiDiGraph,
     uuids: list[str],
 ) -> int:
+    """Calculate a similarity score out of 100 for the given nodes"""
     if len(uuids) < 2:
         return 100
 
@@ -137,6 +145,7 @@ def calc_similarity(
 
 
 def get_identifier_frequency(graph: nx.MultiDiGraph) -> list[tuple[str, int]]:
+    """Calculate a histogram of identifier use in the graph"""
     nodes_by_id: dict[str, list[Node]] = {}
 
     for _, node in graph.nodes.data("node"):
@@ -158,6 +167,7 @@ def merge_nodes(
     uuids: list[str],
     session: neo4j.Session | None = None,
 ):
+    """Merge the given nodes in-place. If session is not None, merge the nodes in the database as well."""
     if len(uuids) < 2:
         return
 
