@@ -47,12 +47,25 @@ class Node:
 
         self.identifiers = []
         if self.annotation is not None and self.metaid:
-            for el in self.annotation.xpath(
-                "rdf:RDF/rdf:Description[@rdf:about=$metaid]/bqbiol:is/rdf:Bag/rdf:li/@rdf:resource",
+            for el_description in self.annotation.xpath(
+                "rdf:RDF/rdf:Description[@rdf:about=$metaid]",
                 metaid=f"#{self.metaid}",
                 namespaces=ANNOTATION_NS,
             ):
-                self.identifiers.append(str(el))
+                for el_qualifier in el_description:
+                    prefix = el_qualifier.prefix
+
+                    tag = xml.QName(el_qualifier.tag)
+                    localname = tag.localname
+
+                    qualifier = f"{prefix}:{localname}"
+
+                    for el_identifier in el_qualifier.xpath(
+                        "rdf:Bag/rdf:li/@rdf:resource",
+                        namespaces=ANNOTATION_NS,
+                    ):
+                        identifier = f'{qualifier}="{el_identifier}"'
+                        self.identifiers.append(identifier)
 
     def copy(
         self,
@@ -96,16 +109,7 @@ class Node:
 
 
 class Model(Node):
-    def __init__(self, uuid: str, label: str, properties: dict[str, str]) -> None:
-        super().__init__(uuid, label, properties)
-
-        if self.annotation is not None and self.metaid:
-            for el in self.annotation.xpath(
-                "rdf:RDF/rdf:Description[@rdf:about=$metaid]/bqmodel:is/rdf:Bag/rdf:li/@rdf:resource",
-                metaid=f"#{self.metaid}",
-                namespaces=ANNOTATION_NS,
-            ):
-                self.identifiers.append(str(el))
+    pass
 
 
 class Compartment(Node):

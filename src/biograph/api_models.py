@@ -12,6 +12,7 @@ class Node(BaseModel):
     id: str
     label: str
     properties: dict[str, str]
+    identifiers: list[str]
 
     @classmethod
     def from_node(cls, node: nodes.Node):
@@ -19,6 +20,7 @@ class Node(BaseModel):
             id=node.uuid,
             label=node.label,
             properties=node.properties,
+            identifiers=node.identifiers,
         )
 
 
