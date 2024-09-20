@@ -52,11 +52,6 @@
   }
 
   async function visualiseFromEndpoint(endpointAndParameters: string) {
-    // The server requires a trailing slash
-    if (!endpointAndParameters.includes("?")) {
-      endpointAndParameters += "/";
-    }
-
     const res = await fetch(endpointAndParameters, { method: "GET" });
     const data = await res.json();
 
@@ -150,12 +145,20 @@
   }
 
   function nextSuggestion() {
+    suggestionIndex++;
+
+    // TODO: Hide all irrelevant nodes and links?
+    // TODO: Highlight the two nodes
+    // Show similarity
   }
 
   function acceptSuggestion() {
+    // TODO: Send request to server
+    loadModels();
   }
 
   function endSuggestions() {
+    suggestingMerges = false;
   }
 
   // --- Visualisation ---
@@ -255,6 +258,7 @@
 
       // Allow properties to be viewed in the inspector
       properties = data_object.properties;
+      properties["label"] = data_object.label;
 
       // Toggle selection
       if (merging) {
@@ -439,9 +443,9 @@
     {#if !merging && !previewingMerge && !suggestingMerges}
     <div class="bg-base-100 collapse">
       <input type="radio" name="my-accordion-1" checked="checked" />
-      <div class="collapse-title text-xl font-medium">Loading</div>
+      <div class="collapse-title text-xl font-medium">Visualisation</div>
       <div class="collapse-content flex flex-col">
-        <button class="btn" on:click={loadModels}>Load Models</button>
+        <button class="btn" on:click={loadModels}>Visualise Models</button>
       </div>
     </div>
     <div class="bg-base-100 collapse">
@@ -496,7 +500,7 @@
       <div class="collapse-title text-xl font-medium">Queries</div>
       <div class="collapse-content space-y-4 flex flex-col">
         <!-- Query by Name -->
-        <button class="btn" on:click={showQueryByNameModal}>Query by Name</button>
+        <button class="btn" on:click={showQueryByNameModal}>Query by Model Name</button>
         <dialog bind:this={queryByNameModal} class="modal">
           <div class="modal-box">
             <form method="dialog">
@@ -583,7 +587,9 @@
             {/if}
             <button class="btn" on:click={clearSelection}>Reset</button>
           {:else}
-            <p>Loading...</p>
+            <button class="btn" on:click={nextSuggestion}>Next Suggestion</button>
+            <button class="btn" on:click={acceptSuggestion}>Accept Suggestion</button>
+            <button class="btn" on:click={endSuggestions}>End Suggestions</button>
           {/if}
         {/if}
       </div>
@@ -607,7 +613,7 @@
       <li><p class="text-lg">Properties</p></li>
       {#each Object.entries(properties) as [key, value]}
         {#if key != "annotation"}
-          <li><p class="break-all">{key.charAt(0).toUpperCase() + key.slice(1)}: {value}</p></li>
+          <li><p class="break-all select-text">{key.charAt(0).toUpperCase() + key.slice(1)}: {value}</p></li>
         {/if}
       {/each}
     {/if}
