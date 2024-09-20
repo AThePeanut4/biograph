@@ -136,6 +136,23 @@ def calc_similarity(
     return max(int(score / i), 0)
 
 
+def get_identifier_frequency(graph: nx.MultiDiGraph) -> list[tuple[str, int]]:
+    nodes_by_id: dict[str, list[Node]] = {}
+
+    for _, node in graph.nodes.data("node"):
+        node = cast(Node, node)
+        for id in node.identifiers:
+            if id in nodes_by_id:
+                nodes_by_id[id].append(node)
+            else:
+                nodes_by_id[id] = [node]
+
+    ret = [(k, len(v)) for k, v in nodes_by_id.items()]
+    ret.sort(key=lambda x: x[1], reverse=True)
+
+    return ret
+
+
 def merge_nodes(
     graph: nx.MultiDiGraph,
     uuids: list[str],

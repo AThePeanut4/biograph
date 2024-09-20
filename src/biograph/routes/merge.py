@@ -3,7 +3,12 @@ import logging
 from fastapi import APIRouter
 
 from .. import database, graph
-from ..api_models import CalculateSimilarityInput, Graph, MergeNodesInput
+from ..api_models import (
+    CalculateSimilarityInput,
+    IdentifierFrequencyResult,
+    Graph,
+    MergeNodesInput,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,3 +33,11 @@ def calculate_similarity(db: database.DbDep, input: CalculateSimilarityInput) ->
     with db.session() as session:
         g = database.get_nodes_with_neighbours(session, input.uuids)
     return graph.calc_similarity(g, input.uuids)
+
+
+@router.get("/identifier-frequency")
+def identifier_frequency(db: database.DbDep) -> list[IdentifierFrequencyResult]:
+    with db.session() as session:
+        g = database.get_graph(session)
+    ret = graph.get_identifier_frequency(g)
+    return [IdentifierFrequencyResult(identifier=x[0], frequency=x[1]) for x in ret]

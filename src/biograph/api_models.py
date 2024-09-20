@@ -60,3 +60,8 @@ class MergeNodesInput(BaseModel):
 
 class CalculateSimilarityInput(BaseModel):
     uuids: list[str]
+
+
+class IdentifierFrequencyResult(BaseModel):
+    identifier: str
+    frequency: int
