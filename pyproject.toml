@@ -38,4 +38,5 @@ prod = "scripts/run.py"
 [tool.pdm.dev-dependencies]
 dev = [
     "types-lxml>=2024.9.16",
+    "pytest>=8.3.3",
 ]

@@ -28,7 +28,8 @@ def query():
 
 @pytest.fixture(scope="session")
 def database_fixure():
-    client.delete("/model/all")
+    ref = client.delete("/model/all")
+    assert ref.status_code == 200
 
 
 @pytest.fixture(scope="session")
@@ -38,13 +39,6 @@ def model(database_fixure):
         assert response.status_code == 200, response.json()
 
 
-# def test_upload():
-#     with open("./tests/models/Malkov2020.xml", "rb") as file:
-#         response = client.post("/model/upload", files={"file": file})
-
-#         assert response.status_code == 200, response.json()
-
-
 def test_schema():
     with open("./config/schema.json", "rb") as file:
         response = client.post("/model/upload-schema", files={"file": file})
@@ -52,27 +46,37 @@ def test_schema():
         assert response.status_code == 200, response.json()
 
 
-def test_query(query):
+def test_query(query, model):
     data = query("MATCH (n) RETURN n")
-    assert len(data) > 1
-    assert len(data) == 0
+    assert len(data) == 23
 
 
 def test_query_by_node(model):
     response = client.get(
-        "/model/by-node?label=Reaction&property=name&value=Infected_To_Recovered"
+        "/model/by-node?label=Reaction&property=name&value=Exposed_To_Infected"
     )
     assert response.status_code == 200, response.json()
     obj = response.json()
-    print(obj["nodes"])
-    assert len(obj["nodes"]) > 0
+    assert len(obj) > 0
 
 
 def test_fetch(model):
     response = client.get("/model/all")
     assert response.status_code == 200, response.json()
+    obj = response.json()
+    print(obj["nodes"])
+    assert len(obj["nodes"]) == 23
 
 
-def test_fetch_target(model):
-    response = client.get("/model/all")
-    assert response.status_code == 200, response.json()
+def test_upload(model):
+    with open("./tests/models/Hou2020.xml", "rb") as file:
+        response = client.post("/model/upload", files={"file": file})
+
+        assert response.status_code == 200, response.json()
+
+
+def test_bad_upload(model):
+    with open("./src/biograph/config.py", "rb") as file:
+        response = client.post("/model/upload", files={"file": file})
+
+        assert response.status_code == 500, response.json()
