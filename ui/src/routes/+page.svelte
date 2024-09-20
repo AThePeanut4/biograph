@@ -16,6 +16,7 @@
   interface INode {
     id: string;
     label: string;
+    identifiers: string[];
     properties: Record<string, string>;
   }
 
@@ -126,39 +127,29 @@
   }
 
   // --- Suggested Merges ---
-  let suggestingMerges = false;
-  let suggestions = [];
-  let suggestionIndex = 0;
+  let mergeSuggestions = [];
 
-  async function suggestMerges() {
-    suggestingMerges = true;
+  let suggestMergesModal: HTMLDialogElement;
+  async function showSuggestMergesModal() {
+    const res = await fetch(ENDPOINT + "/merge/identifier-frequency", { method: "GET" });
+    const identifiers = await res.json();
+    mergeSuggestions = identifiers.slice(0, 6);
 
-    const res = await fetch(ENDPOINT + "TODO", { method: "GET" });
+    suggestMergesModal.showModal();
+  }
+
+  async function filterSuggestion(i) {
+    suggestMergesModal.close();
+
+    const q = `?identifier=${encodeURIComponent(mergeSuggestions[i].identifier)}`;
+    const res = await fetch(ENDPOINT + "/subgraph/by-identifier" + q, { method: "GET" })
     const data = await res.json();
 
     if (data) {
-      suggestions = data;
-      suggestionIndex = 0;
+      visualiseData(data as IGraph);
     } else {
-      networkError("Suggesting merges has failed")
+      networkError("Suggested filter has failed");
     }
-  }
-
-  function nextSuggestion() {
-    suggestionIndex++;
-
-    // TODO: Hide all irrelevant nodes and links?
-    // TODO: Highlight the two nodes
-    // Show similarity
-  }
-
-  function acceptSuggestion() {
-    // TODO: Send request to server
-    loadModels();
-  }
-
-  function endSuggestions() {
-    suggestingMerges = false;
   }
 
   // --- Visualisation ---
@@ -259,6 +250,11 @@
       // Allow properties to be viewed in the inspector
       properties = data_object.properties;
       properties["label"] = data_object.label;
+      for (const identifier of data_object.identifiers) {
+        const parts = identifier.split("=");
+        if (parts.length != 2) continue;
+        properties[parts[0]] = parts[1].slice(1, -1);
+      }
 
       // Toggle selection
       if (merging) {
@@ -440,7 +436,7 @@
 <div class="flex flex h-full">
   <!-- Left Drawer -->
   <div class="bg-base-200 h-full w-2/6 space-y-4 p-4">
-    {#if !merging && !previewingMerge && !suggestingMerges}
+    {#if !merging && !previewingMerge}
     <div class="bg-base-100 collapse">
       <input type="radio" name="my-accordion-1" checked="checked" />
       <div class="collapse-title text-xl font-medium">Visualisation</div>
@@ -571,26 +567,38 @@
       <input type="radio" name="my-accordion-1" />
       <div class="collapse-title text-xl font-medium">Merging</div>
       <div class="collapse-content space-y-4 flex flex-col">
-        {#if !merging && !previewingMerge && !suggestingMerges}
+        {#if !merging && !previewingMerge}
         <button class="btn" on:click={startSelecting}>Start Merge</button>
-        <button class="btn" on:click={suggestMerges}>Suggest Merges</button>
+        <!-- Suggest Merges -->
+        <button class="btn" on:click={showSuggestMergesModal}>Suggest Merges</button>
+        <dialog bind:this={suggestMergesModal} class="modal">
+          <div class="modal-box">
+            <form method="dialog">
+              <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="text-lg font-bold">Merge Suggestions</h3>
+            <p class="py-4">These are the top 6 most common identifiers.</p>
+            <ol class="space-y-4">
+              {#each mergeSuggestions as suggestion, i}
+                <li class="flex flex-row align-middle space-x-4">
+                  <p class="align-middle">{suggestion.identifier} with frequency {suggestion.frequency}</p>
+                  <button class="btn" on:click={() => filterSuggestion(i)}>Filter</button>
+                </li>
+              {/each}
+            </ol>
+          </div>
+        </dialog>
         {:else}
-          {#if !suggestingMerges}
-            {#if !previewingMerge}
-              <p>Click on a node to select it for merging.</p>
-              <button class="btn" on:click={previewMerge}>Preview Merge</button>
-            {:else}
-              {#if similarity}
-                <p>Similarity: {similarity}</p>
-              {/if}
-              <button class="btn" on:click={acceptMerge}>Accept Merge</button>
-            {/if}
-            <button class="btn" on:click={clearSelection}>Reset</button>
+          {#if !previewingMerge}
+            <p>Click on a node to select it for merging.</p>
+            <button class="btn" on:click={previewMerge}>Preview Merge</button>
           {:else}
-            <button class="btn" on:click={nextSuggestion}>Next Suggestion</button>
-            <button class="btn" on:click={acceptSuggestion}>Accept Suggestion</button>
-            <button class="btn" on:click={endSuggestions}>End Suggestions</button>
+            {#if similarity}
+              <p>Similarity: {similarity}</p>
+            {/if}
+            <button class="btn" on:click={acceptMerge}>Accept Merge</button>
           {/if}
+          <button class="btn" on:click={clearSelection}>Reset</button>
         {/if}
       </div>
     </div>

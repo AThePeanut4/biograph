@@ -21,6 +21,6 @@
     <a href="/" class="btn btn-ghost text-xl">BioGraph</a>
   </div>
   <div class="navbar-end">
-    <a href="/manual" class="btn">Visualise</a>
+    <a href="/manual" class="btn">Documentation</a>
   </div>
 </div>
