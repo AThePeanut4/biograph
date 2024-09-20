@@ -521,7 +521,7 @@
             <form method="dialog">
               <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
             </form>
-            <h3 class="text-lg font-bold">Query by Name</h3>
+            <h3 class="text-lg font-bold">Query by Model Name</h3>
             <p class="py-4">The name must be provided.</p>
             <div class="space-y-4">
               <label class="input input-bordered flex items-center gap-2">
@@ -534,13 +534,13 @@
         </dialog>
 
         <!-- Query by Node -->
-        <button class="btn" on:click={showQueryByNodeModal}>Query by Node</button>
+        <button class="btn" on:click={showQueryByNodeModal}>Query Model by Node</button>
         <dialog bind:this={queryByNodeModal} class="modal">
           <div class="modal-box">
             <form method="dialog">
               <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
             </form>
-            <h3 class="text-lg font-bold">Query by Node</h3>
+            <h3 class="text-lg font-bold">Query Model by Node</h3>
             <p class="py-4">At least one field must be provided.</p>
             <div class="space-y-4">
               <label class="input input-bordered flex items-center gap-2">
