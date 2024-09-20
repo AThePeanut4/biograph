@@ -6,7 +6,7 @@
 
   import { onMount } from "svelte";
   import * as d3 from "d3";
-  const ENDPOINT = import.meta.env.VITE_ENDPOINT;
+  const ENDPOINT = import.meta.env.VITE_ENDPOINT ?? "http://localhost:8000";
 
   interface IGraph {
     nodes: INode[];
