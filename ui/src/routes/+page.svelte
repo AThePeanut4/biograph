@@ -413,7 +413,7 @@
   let queryValue = "";
 
   async function queryByNode() {
-    if (!queryLabel && !queryProperty && !queryValue) {
+    if (!queryLabel || !queryProperty || !queryValue) {
       return;
     }
 
@@ -541,7 +541,7 @@
               <button class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">✕</button>
             </form>
             <h3 class="text-lg font-bold">Query Model by Node</h3>
-            <p class="py-4">At least one field must be provided.</p>
+            <p class="py-4">All fields must be provided.</p>
             <div class="space-y-4">
               <label class="input input-bordered flex items-center gap-2">
                 Label
